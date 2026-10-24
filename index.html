@@ -1,234 +1,456 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#081326">
-<title>Physics Booster Lab | Ohm's Law</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d19">
+<title>Physics Booster Lab</title>
 <style>
-:root{--bg:#081326;--panel:#101f38;--panel2:#142743;--line:#2a4162;--text:#eef5ff;--muted:#a9bad2;--cyan:#58e1ee;--green:#8af0b1;--yellow:#ffd777;--red:#ff9b9b}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#17345a 0,transparent 34%),var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-header{padding:24px 16px 18px;max-width:1000px;margin:auto} .eyebrow{color:var(--cyan);font-size:.78rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
-h1{font-size:clamp(2rem,7vw,3.3rem);line-height:1.05;margin:8px 0 10px}h2{font-size:1.35rem;margin:0 0 12px}h3{font-size:1rem;margin:0 0 6px}.muted{color:var(--muted)}.hero{max-width:680px}
-main{max-width:1000px;margin:auto;padding:0 16px 42px;display:grid;gap:16px}
-.panel{background:linear-gradient(150deg,rgba(20,39,67,.98),rgba(13,28,49,.98));border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 12px 35px #0002}
-.pills{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--muted);font-size:.85rem}
-.layout{display:grid;gap:16px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}.control{background:#09172a;border:1px solid var(--line);padding:12px;border-radius:14px}.control label{display:flex;justify-content:space-between;gap:8px;font-size:.92rem;font-weight:650}.control output{color:var(--cyan);font-weight:800}input[type=range]{width:100%;accent-color:var(--cyan);margin:12px 0 3px}
-.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#09172a;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}.metric strong{display:block;color:var(--cyan);font-size:clamp(1.1rem,4vw,1.6rem)}.metric span{font-size:.78rem;color:var(--muted)}
-.circuit{width:100%;display:block;max-height:260px;background:#081629;border-radius:14px;border:1px solid var(--line)}.wire{stroke:#4d6c8c;stroke-width:5;fill:none;stroke-linecap:round}.live{stroke:var(--cyan);stroke-width:4;stroke-dasharray:9 10;animation:flow 1s linear infinite}.resistor{fill:#172d49;stroke:var(--yellow);stroke-width:3}.label{fill:#eaf4ff;font-size:13px}.tiny{fill:#a9bad2;font-size:11px}@keyframes flow{to{stroke-dashoffset:-38}}
-.btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}button{font:inherit;font-weight:750;border:0;border-radius:12px;padding:11px 14px;background:var(--cyan);color:#061326;cursor:pointer}button.secondary{background:#203854;color:var(--text);border:1px solid var(--line)}button:focus-visible,input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
-.captionbox{border-left:4px solid var(--cyan);background:#08172a;border-radius:0 12px 12px 0;padding:14px;min-height:88px}.captionbox small{color:var(--cyan);font-weight:800;text-transform:uppercase;letter-spacing:.08em}.captiontext{font-size:1.05rem;margin-top:5px}
-.steps{display:grid;gap:10px}.step{display:flex;gap:12px;align-items:flex-start}.num{flex:0 0 30px;height:30px;border-radius:10px;background:#203854;color:var(--cyan);display:grid;place-items:center;font-weight:900}
-.formula{padding:14px;border-radius:14px;background:#071426;border:1px solid var(--line);text-align:center;font-size:1.5rem;font-weight:850;letter-spacing:.03em}.callout{padding:12px;border-radius:12px;background:#122c3c;border:1px solid #245366}.question{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}.options{display:grid;gap:8px;margin-top:10px}.option{display:flex;gap:9px;align-items:flex-start;background:#09172a;border:1px solid var(--line);border-radius:10px;padding:10px}.option input{margin-top:5px;accent-color:var(--cyan)}.feedback{margin-top:8px;font-weight:700}.good{color:var(--green)}.bad{color:var(--red)}footer{text-align:center;color:var(--muted);font-size:.85rem;padding:10px}
-@media(min-width:760px){.layout{grid-template-columns:1.15fr .85fr}.lesson-layout{grid-template-columns:1fr 1fr}.panel{padding:22px}}
-@media(max-width:420px){.controls{grid-template-columns:1fr}.readout{gap:5px}.metric{padding:10px 4px}.panel{padding:14px}header{padding-top:20px}}
+:root{--bg:#080d19;--panel:#111a2b;--line:#27354a;--text:#edf4ff;--muted:#96a8c2;--cyan:#67e8f9;--green:#86efac;--orange:#fbbf24;--red:#fca5a5}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;line-height:1.6}
+header{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand{font-weight:800;letter-spacing:.6px}.brand span{color:var(--cyan)}
+.tag{color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+main{width:min(100% - 28px,850px);margin:28px auto}
+h1{font-size:clamp(29px,7vw,43px);line-height:1.15;letter-spacing:-1px}
+h2{font-size:22px;margin:5px 0 10px}h3{font-size:17px;margin:8px 0}
+p{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:19px;margin:15px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mode{min-width:0;text-align:left;padding:16px;border:1px solid var(--line);border-radius:13px;background:#111a2b;color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.mode:active,.topic:active{border-color:var(--cyan);background:#17263b}
+.mode .symbol{font-size:25px;color:var(--cyan)}.mode strong{font-size:16px}.mode small{color:var(--muted);font-size:12px;line-height:1.5}
+button{padding:12px 15px;border:1px solid var(--line);border-radius:10px;background:#18253a;color:var(--text);font-size:14px;font-weight:650;cursor:pointer}
+button.primary{background:var(--cyan);color:#07111e;border-color:var(--cyan)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.actions{display:grid;gap:9px;margin-top:16px}
+.formula{text-align:center;font-size:clamp(34px,8vw,50px);font-weight:800;color:var(--cyan);padding:14px}
+label.option{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:10px;margin:9px 0;cursor:pointer}
+.option:has(input:checked){border-color:var(--cyan);background:#14283a}
+input[type=radio],input[type=checkbox]{accent-color:var(--cyan)}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+input[type=number],input[type=search],select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#0b1322;color:var(--text);font:inherit}
+.readout{background:#0b1322;border:1px solid var(--line);border-radius:12px;padding:15px}
+.readout strong.big{font-size:27px;color:var(--cyan)}
+.feedback{background:#172438;border-radius:10px;padding:13px;margin-top:12px}
+.good{color:var(--green)}.warn{color:var(--orange)}.bad{color:var(--red)}
+.small{font-size:13px}.muted{color:var(--muted)}
+.progress{height:5px;background:#253147;border-radius:9px;overflow:hidden}.progress div{height:100%;background:var(--cyan);width:0%}
+.topic-list{display:grid;gap:9px;margin-top:12px}
+.topic{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.topic span:last-child{color:var(--cyan)}
+.meta-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.timer{font-variant-numeric:tabular-nums;font-weight:800;color:var(--orange);font-size:20px}
+footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+@media(max-width:380px){.modes{grid-template-columns:1fr}header{padding:13px}.panel{padding:15px}}
 </style>
+
+<style>
+.lesson-tools{margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(5,15,30,.42)}
+.lesson-tools-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.lesson-tools label{display:block;font-weight:700;margin-bottom:5px}
+.lesson-tools select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:#0b1930;color:var(--text);font:inherit}
+.caption-card{margin-top:12px;padding:14px;border-radius:12px;background:#071426;border-left:4px solid var(--cyan);min-height:88px}
+.caption-label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+.caption-line{font-size:1.02rem;margin-top:5px}
+.audio-status{color:var(--muted);font-size:.9rem;margin:8px 0}
+.lesson-steps{display:grid;gap:10px;margin:14px 0}
+.lesson-step{padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(5,15,30,.28)}
+@media(min-width:680px){.lesson-tools-grid{grid-template-columns:1fr 1fr}}
+</style>
+
 </head>
 <body>
-<header>
-  <div class="eyebrow">Physics Booster Lab · Mission 001</div>
-  <h1>Ohm’s Law, <span style="color:var(--cyan)">made visible.</span></h1>
-  <p class="hero muted">Learn the idea, hear the teacher, explore a circuit, then test your own prediction. Built for a phone-first classroom.</p>
-  <div class="pills"><span class="pill">Class XII Physics</span><span class="pill">Interactive lesson</span><span class="pill">No account needed</span></div>
-</header>
+<header><div class="brand">PHYSICS <span>BOOSTER LAB</span></div><div class="tag">ENGINE 0.3</div></header>
 <main>
-  <section class="panel">
-    <h2>01 · The teacher’s board</h2>
-    <p class="muted">Press play to hear the lesson. Captions follow the teacher’s lesson segments. Voice availability depends on your phone/browser.</p>
-    <div class="captionbox" aria-live="polite">
-      <small id="captionLabel">Teacher captions</small>
-      <div class="captiontext" id="caption">Welcome! We’ll discover how voltage, resistance and current are connected.</div>
-    </div>
-    <div class="btnrow">
-      <button id="playBtn">▶ Play lesson</button>
-      <button class="secondary" id="pauseBtn">Ⅱ Stop voice</button>
-      <button class="secondary" id="nextBtn">Next caption →</button>
-    </div>
-    <p id="voiceStatus" class="muted" role="status">Ready. Tap Play lesson to begin.</p>
-  </section>
+  <div class="tag">CLASS XII / PHYSICS</div>
+  <h1>Understand the concept.<br>Prove what you know.</h1>
+  <p>Choose a learning path. Select a chapter before opening a lesson or test.</p>
 
-  <section class="layout">
+  <section id="home">
     <div class="panel">
-      <h2>02 · Explore the circuit</h2>
-      <p class="muted">Move the controls. Watch the current change. This is a simplified ideal circuit for learning, not a real lab instrument.</p>
-      <svg class="circuit" viewBox="0 0 340 220" role="img" aria-label="Battery, switch, resistor and connecting wires in a simple circuit">
-        <path class="wire" d="M72 50 H130 M190 50 H270 V170 H72 V50"/>
-        <path class="live" d="M72 50 H130 M190 50 H270 V170 H72 V50"/>
-        <circle cx="130" cy="50" r="5" fill="#58e1ee"/><circle cx="190" cy="50" r="5" fill="#58e1ee"/>
-        <path d="M130 50 L178 29" stroke="#ffd777" stroke-width="4" stroke-linecap="round"/>
-        <rect x="123" y="105" width="96" height="32" rx="5" class="resistor"/>
-        <path class="wire" d="M72 105 V121 H123 M219 121 H270 V105"/>
-        <rect x="34" y="77" width="76" height="66" rx="10" fill="#142743" stroke="#2a4162"/>
-        <line x1="52" y1="99" x2="92" y2="99" stroke="#58e1ee" stroke-width="3"/>
-        <line x1="60" y1="113" x2="84" y2="113" stroke="#58e1ee" stroke-width="6"/>
-        <text x="72" y="158" text-anchor="middle" class="label">Battery</text>
-        <text x="160" y="17" text-anchor="middle" class="tiny">Switch</text>
-        <text x="171" y="126" text-anchor="middle" class="label">Resistor</text>
-        <text x="270" y="193" text-anchor="middle" class="label">Current I</text>
-        <text x="170" y="208" text-anchor="middle" class="tiny">Conventional current direction (simplified)</text>
-      </svg>
-      <div class="controls" style="margin-top:12px">
-        <div class="control">
-          <label for="voltage">Voltage <output id="vOut">6 V</output></label>
-          <input id="voltage" type="range" min="1" max="12" value="6" step="1">
-          <div class="muted" style="font-size:.8rem">Adjust the battery voltage.</div>
+      <div class="tag">LEARNING MODES</div><h2>What do you want to do?</h2>
+      <div class="modes">
+        <button class="mode" onclick="startLearn()"><span class="symbol">01 /</span><strong>Learn Lesson</strong><small>Choose a chapter, then search its topics.</small></button>
+        <button class="mode" onclick="startTest()"><span class="symbol">02 /</span><strong>Take Test</strong><small>Choose a chapter, test type and difficulty.</small></button>
+        <button class="mode" onclick="openExperiment()"><span class="symbol">03 /</span><strong>Experiment It</strong><small>Explore the existing Ohm's law simulator.</small></button>
+        <button class="mode" onclick="openBuilder()"><span class="symbol">04 /</span><strong>Build It</strong><small>Configure the existing simple circuit.</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="learnChapters" class="panel" hidden>
+    <div class="tag">MODE 01 · LEARN LESSON</div><h2>Which chapter do you want to study?</h2>
+    <p>Choose a chapter to see its topics. Only Ohm's Law is currently implemented as a lesson.</p>
+    <div id="chapterLearnList" class="topic-list"></div>
+    <div class="actions"><button onclick="goHome()">Back to home</button></div>
+  </section>
+
+  <section id="learnTopics" class="panel" hidden>
+    <div class="tag">MODE 01 · TOPIC SELECTION</div><h2 id="learnTopicHeading">Which topic do you want to start?</h2>
+    <label for="topicSearch">Search topics</label><input id="topicSearch" type="search" placeholder="Type a topic name...">
+    <div id="topicList" class="topic-list"></div>
+    <div class="actions"><button onclick="showOnly('learnChapters')">← Choose another chapter</button><button onclick="goHome()">Back to home</button></div>
+  </section>
+
+  <section id="lesson" class="panel" hidden>
+    <div class="tag">MODE 01 · LEARN LESSON</div><p id="lessonBreadcrumb" class="small">Current Electricity / Ohm's Law</p>
+    <h2>Ohm's Law</h2>
+    <p>We will first understand what happens in a circuit, then connect the observation to the formula. You can listen, pause, resume, or move through the captions yourself.</p>
+
+    <div class="lesson-tools">
+      <h3>Choose your learning language</h3>
+      <p class="small">First choose your school's medium. Then choose the language that helps you understand best. This setting changes the lesson explanation and narration, not your school's official exam language.</p>
+      <div class="lesson-tools-grid">
+        <div>
+          <label for="schoolMedium">School medium</label>
+          <select id="schoolMedium">
+            <option value="english" selected>English medium</option>
+            <option value="hindi">Hindi medium</option>
+          </select>
         </div>
-        <div class="control">
-          <label for="resistance">Resistance <output id="rOut">3 Ω</output></label>
-          <input id="resistance" type="range" min="1" max="12" value="3" step="1">
-          <div class="muted" style="font-size:.8rem">Adjust the resistor value.</div>
+        <div>
+          <label for="preferredLanguage">Preferred explanation language</label>
+          <select id="preferredLanguage">
+            <option value="english" selected>English</option>
+            <option value="hinglish">Hinglish</option>
+            <option value="hindi">Hindi</option>
+          </select>
         </div>
       </div>
-      <div class="readout">
-        <div class="metric"><strong id="currentOut">2.00 A</strong><span>Current (I)</span></div>
-        <div class="metric"><strong id="powerOut">12 W</strong><span>Power (P = VI)</span></div>
-        <div class="metric"><strong id="ratioOut">2.00</strong><span>V ÷ R</span></div>
-      </div>
-      <div class="callout" style="margin-top:12px" id="circuitInsight">At 6 V and 3 Ω, current is 2 A.</div>
+      <p id="languageHint" class="small">English-medium lesson with English explanation.</p>
     </div>
 
-    <div class="panel">
-      <h2>03 · Understand the rule</h2>
-      <div class="formula">V = I × R</div>
-      <div class="steps" style="margin-top:15px">
-        <div class="step"><div class="num">1</div><div><strong>Voltage (V)</strong><div class="muted">The electrical push across a component, measured in volts (V).</div></div></div>
-        <div class="step"><div class="num">2</div><div><strong>Current (I)</strong><div class="muted">The rate of flow of electric charge, measured in amperes (A).</div></div></div>
-        <div class="step"><div class="num">3</div><div><strong>Resistance (R)</strong><div class="muted">How strongly a component opposes current, measured in ohms (Ω).</div></div></div>
-      </div>
-      <div class="callout" style="margin-top:14px"><strong>For a fixed resistance:</strong> increasing voltage increases current in the same proportion. <br><strong>For a fixed voltage:</strong> increasing resistance decreases current.</div>
+    <div class="caption-card" aria-live="polite">
+      <div id="captionLabel" class="caption-label">Teacher captions · 1 of 7</div>
+      <div id="lessonCaption" class="caption-line">Welcome! Today we will discover how voltage, resistance and current are connected.</div>
     </div>
+    <div class="actions">
+      <button class="primary" id="lessonPlay">▶ Play lesson</button>
+      <button id="lessonPause" disabled>Ⅱ Pause</button>
+      <button id="lessonStop">■ Stop</button>
+      <button id="lessonPrevious">← Previous caption</button>
+      <button id="lessonNext">Next caption →</button>
+    </div>
+    <p id="lessonAudioStatus" class="audio-status" role="status">Ready. Tap Play lesson to begin.</p>
+
+    <h3>Understand the idea</h3>
+    <div id="lessonExplanation">
+      <div class="lesson-steps">
+        <div class="lesson-step"><strong>1. What makes current flow?</strong><p>A battery creates a potential difference between its terminals. In a closed conducting path, this electric field makes charges already present in the wire drift. The battery supplies energy to the circuit.</p></div>
+        <div class="lesson-step"><strong>2. What does resistance do?</strong><p>Collisions and interactions inside a material oppose the drift of charge. For an ohmic conductor at constant physical conditions, more voltage produces proportionally more current; more resistance at the same voltage means less current.</p></div>
+        <div class="lesson-step"><strong>3. Connect the observation to the rule</strong><p>Ohm's law describes the relationship: V = IR. To find current, rearrange it to I = V/R. For example, 6 V across 3 Ω gives I = 6/3 = 2 A.</p></div>
+      </div>
+    </div>
+    <div class="formula">V = IR</div>
+    <div class="grid">
+      <div><strong>V</strong><p>Potential difference, in volts (V).</p></div>
+      <div><strong>I</strong><p>Current, in amperes (A).</p></div>
+      <div><strong>R</strong><p>Resistance, in ohms (Ω).</p></div>
+      <div><strong>Rearranged</strong><p>I = V/R</p></div>
+    </div>
+    <div class="readout"><strong class="big">Key idea</strong><p>If resistance stays constant, doubling voltage doubles current. If voltage stays constant, doubling resistance halves current.</p></div>
+
+    <div class="lesson-step">
+      <h3>Now practise yourself</h3>
+      <p>A 12 V battery is connected to a 4 Ω resistor. Before using the simulator, calculate the current and say why you divided instead of multiplied.</p>
+      <p><strong>Answer check:</strong> I = V/R = 12/4 = 3 A. We divide because the formula for current is voltage divided by resistance.</p>
+      <div class="actions"><button onclick="openExperiment()">Try the circuit yourself →</button><button class="primary" onclick="startTestForCurrentTopic()">Take the topic test →</button></div>
+    </div>
+    <div class="actions"><button onclick="showOnly('learnTopics')">Choose another topic</button><button onclick="goHome()">Back to home</button></div>
   </section>
 
-  <section class="panel lesson-layout layout">
-    <div>
-      <h2>04 · Exam notes</h2>
-      <ul>
-        <li><strong>Ohm’s law:</strong> for a conductor under constant physical conditions, current is directly proportional to potential difference across it.</li>
-        <li><strong>Equation:</strong> V ∝ I, so V = IR. The constant R is resistance.</li>
-        <li><strong>Rearrange:</strong> I = V/R and R = V/I.</li>
-        <li><strong>Graph:</strong> for an ohmic conductor, the V–I graph is a straight line through the origin when V is plotted against I. Its slope is R.</li>
-        <li><strong>Conditions:</strong> temperature and other physical conditions must remain constant.</li>
-      </ul>
-    </div>
-    <div>
-      <h2>05 · Worked example</h2>
-      <p><strong>Question:</strong> A resistor of 4 Ω is connected across 12 V. Find the current.</p>
-      <div class="formula" style="font-size:1.15rem">I = V/R = 12/4 = 3 A</div>
-      <p class="muted">Step 1: Write the known values. Step 2: Choose I = V/R. Step 3: Substitute with units. Step 4: Give the answer in amperes.</p>
-      <div class="callout"><strong>Common mistake:</strong> multiplying V and R when current is required. For current, divide voltage by resistance.</div>
-    </div>
+  <section id="testChapters" class="panel" hidden>
+    <div class="tag">MODE 02 · TAKE TEST</div><h2>Select a chapter to test yourself</h2>
+    <div id="chapterTestList" class="topic-list"></div>
+    <div class="actions"><button onclick="goHome()">Back to home</button></div>
   </section>
 
-  <section class="panel">
-    <h2>06 · Your turn: predict, then check</h2>
-    <p class="muted">Try without changing the circuit controls first. Choose an answer, then check your reasoning.</p>
-    <div class="question">
-      <strong>Challenge 1</strong>
-      <p>The voltage is 10 V and resistance is 5 Ω. What is the current?</p>
-      <div class="options">
-        <label class="option"><input type="radio" name="q1" value="a"> 50 A</label>
-        <label class="option"><input type="radio" name="q1" value="b"> 2 A</label>
-        <label class="option"><input type="radio" name="q1" value="c"> 0.5 A</label>
-      </div>
-      <button class="secondary" onclick="checkQuestion('q1','b','feedback1','Use I = V/R = 10/5 = 2 A.')">Check answer</button>
-      <div id="feedback1" class="feedback" aria-live="polite"></div>
+  <section id="testSetup" class="panel" hidden>
+    <div class="tag">MODE 02 · TEST SETUP</div><h2 id="testSetupHeading">Current Electricity</h2>
+    <p>Choose how you want to test yourself.</p>
+    <div class="actions">
+      <button class="primary" onclick="beginTest('chapter')">Take full chapter test</button>
+      <button onclick="showTopicTestChoices()">Select a topic to test</button>
     </div>
-    <div class="question">
-      <strong>Challenge 2</strong>
-      <p>Voltage stays at 6 V. Resistance changes from 3 Ω to 6 Ω. What happens to current?</p>
-      <div class="options">
-        <label class="option"><input type="radio" name="q2" value="a"> It doubles from 2 A to 4 A</label>
-        <label class="option"><input type="radio" name="q2" value="b"> It stays at 2 A</label>
-        <label class="option"><input type="radio" name="q2" value="c"> It halves from 2 A to 1 A</label>
-      </div>
-      <button class="secondary" onclick="checkQuestion('q2','c','feedback2','I = V/R. At 6 V, current falls from 6/3 = 2 A to 6/6 = 1 A.')">Check answer</button>
-      <div id="feedback2" class="feedback" aria-live="polite"></div>
+    <div id="testTopicChooser" hidden>
+      <label for="testTopicSelect">Topic</label><select id="testTopicSelect"></select>
+      <div class="actions"><button class="primary" onclick="beginTest('topic')">Test selected topic</button></div>
     </div>
-    <div class="question">
-      <strong>Challenge 3</strong>
-      <p>Which condition is important for Ohm’s law to hold for a conductor?</p>
-      <div class="options">
-        <label class="option"><input type="radio" name="q3" value="a"> Physical conditions such as temperature remain constant</label>
-        <label class="option"><input type="radio" name="q3" value="b"> Resistance must always be zero</label>
-        <label class="option"><input type="radio" name="q3" value="c"> Current must always be 1 A</label>
-      </div>
-      <button class="secondary" onclick="checkQuestion('q3','a','feedback3','Ohm’s law applies when physical conditions, especially temperature, remain constant.')">Check answer</button>
-      <div id="feedback3" class="feedback" aria-live="polite"></div>
+    <h3>Difficulty</h3>
+    <p class="small">Difficulty changes question complexity and points. This prototype currently contains a small Ohm's Law question bank.</p>
+    <div id="difficultyOptions">
+      <label class="option"><input type="radio" name="difficulty" value="easy" checked> Easy · 10 seconds per question · +1 point</label>
+      <label class="option"><input type="radio" name="difficulty" value="medium"> Medium · 20 seconds per question · +2 points</label>
+      <label class="option"><input type="radio" name="difficulty" value="hard"> Hard · 30 seconds per question · +3 points</label>
+      <label class="option"><input type="radio" name="difficulty" value="extreme"> Extreme · 45 seconds per question · +5 points</label>
     </div>
-    <p id="score" class="muted">Score: 0 / 3 checked correctly</p>
-    <button id="resetQuiz" class="secondary">Reset quiz</button>
+    <div class="actions"><button onclick="showOnly('testChapters')">← Choose another chapter</button><button onclick="goHome()">Back to home</button></div>
   </section>
-  <footer>Physics Booster Lab · Learn it, see it, test it. <br>Educational simulation only. Follow your school syllabus and laboratory safety rules.</footer>
+
+  <section id="test" class="panel" hidden>
+    <div class="tag">MODE 02 · TIMED TEST</div>
+    <div class="meta-row"><span id="testProgress" class="small muted">Question 1 of 1</span><span id="timer" class="timer">00:10</span></div>
+    <div class="progress" style="margin:12px 0"><div id="testProgressBar"></div></div>
+    <h2 id="questionText">Question</h2><p id="questionPrompt"></p>
+    <form id="quiz"><div id="answerOptions"></div><button class="primary" type="submit" style="width:100%">Lock answer</button></form>
+    <div id="testFeedback" class="feedback" role="status" aria-live="polite" hidden></div>
+    <div class="actions"><button id="nextQuestionBtn" class="primary" onclick="nextQuestion()" hidden>Next question →</button><button onclick="endTestEarly()">Finish test now</button></div>
+  </section>
+
+  <section id="testResults" class="panel" hidden>
+    <div class="tag">MODE 02 · TEST RESULTS</div><h2>Test complete</h2>
+    <div class="readout"><div class="tag">TOTAL SCORE</div><strong class="big" id="finalScore">0 points</strong><p id="resultSummary"></p></div>
+    <div class="grid">
+      <div class="readout"><strong id="correctCount" class="big">0</strong><p>Correct</p></div>
+      <div class="readout"><strong id="wrongCount" class="big">0</strong><p>Wrong</p></div>
+      <div class="readout"><strong id="timeoutCount" class="big">0</strong><p>Timed out</p></div>
+      <div class="readout"><strong id="rewardCount" class="big">0</strong><p>Reward points</p></div>
+    </div>
+    <div id="perfectReward" class="feedback" hidden></div>
+    <p class="small muted">Prototype note: score and rewards are stored only during this page session. They are not secure, account-based or tamper-proof.</p>
+    <div class="actions"><button class="primary" onclick="startTest()">Take another test</button><button onclick="goHome()">Back to home</button></div>
+  </section>
+
+  <section id="experiment" class="panel" hidden>
+    <div class="tag">MODE 03 · EXPERIMENT IT</div><h2>Live Ohm's Law Lab</h2><p>Move the controls. Watch how current responds to voltage and resistance.</p>
+    <div class="readout"><div class="tag">SIMULATED CIRCUIT CURRENT</div><strong class="big" id="currentValue">2.00 A</strong><p id="calculation">I = 6 V / 3 Ω</p></div>
+    <div class="panel"><label for="voltage">Voltage: <strong id="voltageLabel">6 V</strong></label><input id="voltage" type="range" min="0" max="12" step="1" value="6"><label for="resistance">Resistance: <strong id="resistanceLabel">3 Ω</strong></label><input id="resistance" type="range" min="1" max="12" step="1" value="3"></div>
+    <svg viewBox="0 0 320 145" role="img" aria-label="Schematic circuit with a battery and resistor"><path d="M45 35 H120 M200 35 H275 V112 H45 V35" stroke="#67e8f9" stroke-width="3" fill="none"/><path d="M120 35 l8 -9 l12 18 l12 -18 l12 18 l12 -18 l12 9" stroke="#fbbf24" stroke-width="3" fill="none"/><path d="M45 61 V86 M34 66 H56 M38 81 H52" stroke="#edf4ff" stroke-width="3" fill="none"/><text x="160" y="17" fill="#96a8c2" font-size="11" text-anchor="middle">RESISTOR</text><text x="160" y="132" fill="#96a8c2" font-size="11" text-anchor="middle">SIMPLIFIED CIRCUIT</text></svg>
+    <div id="experimentInsight" class="feedback">Adjust a control to explore the relationship.</div>
+    <div class="actions"><button onclick="resetExperiment()">Reset experiment</button><button onclick="startTestForCurrentTopic()">Test what you learned →</button><button onclick="goHome()">Back to home</button></div>
+  </section>
+
+  <section id="builder" class="panel" hidden>
+    <div class="tag">MODE 04 · BUILD IT</div><h2>Build a simple circuit</h2><p>Select components and close the switch to test the circuit.</p>
+    <label for="battery">Battery voltage</label><select id="battery"><option value="3">3 V battery</option><option value="6" selected>6 V battery</option><option value="9">9 V battery</option><option value="12">12 V battery</option></select>
+    <label for="resistorSelect">Resistor component</label><select id="resistorSelect"><option value="2">2 Ω resistor</option><option value="4" selected>4 Ω resistor</option><option value="6">6 Ω resistor</option><option value="12">12 Ω resistor</option></select>
+    <svg viewBox="0 0 320 160" role="img" aria-label="Virtual battery, switch and resistor circuit"><path d="M45 35 H105 M165 35 H275 V120 H45 V35" stroke="#53647d" stroke-width="3" fill="none"/><path id="switchWire" d="M105 35 L150 35" stroke="#fbbf24" stroke-width="3" fill="none"/><circle cx="105" cy="35" r="4" fill="#edf4ff"/><circle cx="165" cy="35" r="4" fill="#edf4ff"/><rect x="180" y="24" width="48" height="22" rx="3" fill="#18253a" stroke="#67e8f9" stroke-width="2"/><text x="204" y="39" fill="#edf4ff" font-size="10" text-anchor="middle">R</text><path d="M45 60 V95 M34 68 H56 M38 88 H52" stroke="#edf4ff" stroke-width="3"/><text x="45" y="15" fill="#96a8c2" font-size="10" text-anchor="middle">BATTERY</text><text id="switchLabel" x="135" y="18" fill="#fbbf24" font-size="10" text-anchor="middle">OPEN</text><text x="160" y="148" fill="#96a8c2" font-size="10" text-anchor="middle">SCHEMATIC · NOT TO SCALE</text></svg>
+    <button id="switchBtn" class="primary" style="width:100%" onclick="toggleSwitch()">Close switch</button>
+    <div class="readout" style="margin-top:14px"><div class="tag">CIRCUIT STATUS</div><h3 id="circuitStatus">Circuit open</h3><p id="circuitResult">The open switch interrupts the circuit. Current is zero.</p><div class="formula" id="circuitCurrent">I = 0 A</div></div>
+    <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
+  </section>
 </main>
+<footer>Physics Booster Lab · Prototype v0.3<br>Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
+
 <script>
-const $ = id => document.getElementById(id);
-const voltage = $('voltage'), resistance = $('resistance');
-function updateCircuit(){
-  const v = Number(voltage.value), r = Number(resistance.value), i = v/r, p = v*i;
-  $('vOut').textContent = v+' V';
-  $('rOut').textContent = r+' Ω';
-  $('currentOut').textContent = i.toFixed(2)+' A';
-  $('powerOut').textContent = p.toFixed(2).replace(/\.00$/,'')+' W';
-  $('ratioOut').textContent = i.toFixed(2);
-  $('circuitInsight').textContent = `At ${v} V and ${r} Ω, current is ${i.toFixed(2)} A. ${v} ÷ ${r} = ${i.toFixed(2)}.`;
-}
-voltage.addEventListener('input',updateCircuit);
-resistance.addEventListener('input',updateCircuit);
-const segments = [
-  "Welcome to Physics Booster Lab. Today we will discover how voltage, current and resistance are connected.",
-  "Voltage is the potential difference across a component. We measure it in volts.",
-  "Current is the rate of flow of electric charge. We measure current in amperes.",
-  "Resistance describes how strongly a component opposes current. Its unit is the ohm.",
-  "Ohm’s law says that, when physical conditions remain constant, voltage equals current multiplied by resistance.",
-  "To calculate current, rearrange the equation: current equals voltage divided by resistance.",
-  "Now change the voltage and resistance sliders. Observe how the current responds, then answer the challenges below."
+const chapters = [
+ {id:1,name:"Electric Charges and Fields",topics:["Electric charge","Coulomb's law","Electric field","Electric field lines","Electric dipole","Electric flux","Gauss's law"]},
+ {id:2,name:"Electrostatic Potential and Capacitance",topics:["Electric potential","Potential difference","Equipotential surfaces","Potential energy","Capacitance","Capacitors in series and parallel","Energy stored in a capacitor"]},
+ {id:3,name:"Current Electricity",topics:["Electric current","Ohm's Law","Resistance and resistivity","Drift velocity","Electrical power","Cells and internal resistance","Kirchhoff's laws","Wheatstone bridge and meter bridge","Potentiometer"]},
+ {id:4,name:"Moving Charges and Magnetism",topics:["Magnetic force","Motion in a magnetic field","Biot-Savart law","Ampere's law","Force between parallel currents","Torque on a current loop","Moving-coil galvanometer"]},
+ {id:5,name:"Magnetism and Matter",topics:["Bar magnet","Magnetic field lines","Earth's magnetism","Magnetic properties of materials"]},
+ {id:6,name:"Electromagnetic Induction",topics:["Magnetic flux","Faraday's law","Lenz's law","Motional electromotive force","Eddy currents"]},
+ {id:7,name:"Alternating Current",topics:["AC voltage and current","Peak and RMS values","Reactance","Impedance","LCR circuit","Resonance","Transformer"]},
+ {id:8,name:"Electromagnetic Waves",topics:["Displacement current","Electromagnetic waves","Electromagnetic spectrum"]},
+ {id:9,name:"Ray Optics and Optical Instruments",topics:["Reflection","Refraction","Refraction at spherical surfaces","Lens maker's formula","Total internal reflection","Prism","Optical instruments"]},
+ {id:10,name:"Wave Optics",topics:["Huygens' principle","Interference","Young's double-slit experiment","Diffraction","Polarisation"]},
+ {id:11,name:"Dual Nature of Radiation and Matter",topics:["Photoelectric effect","Einstein's photoelectric equation","Matter waves","de Broglie wavelength"]},
+ {id:12,name:"Atoms",topics:["Rutherford model","Bohr model","Hydrogen spectrum"]},
+ {id:13,name:"Nuclei",topics:["Nuclear size","Mass defect and binding energy","Radioactivity","Nuclear fission and fusion"]},
+ {id:14,name:"Semiconductor Electronics",topics:["Energy bands","Intrinsic and extrinsic semiconductors","p-n junction diode","Rectifier","Logic gates"]}
 ];
-let segmentIndex = 0, playing = false, utterance = null;
-function showSegment(i){
-  segmentIndex = (i + segments.length) % segments.length;
-  $('captionLabel').textContent = `Teacher captions · ${segmentIndex+1} of ${segments.length}`;
-  $('caption').textContent = segments[segmentIndex];
+const sections=["home","learnChapters","learnTopics","lesson","testChapters","testSetup","test","testResults","experiment","builder"];
+function showOnly(id){sections.forEach(n=>document.getElementById(n).hidden=n!==id);window.scrollTo({top:0,behavior:"smooth"});}
+function goHome(){stopTimer();showOnly("home");}
+function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
+let selectedChapter=chapters[2], selectedTopic="Ohm's Law";
+function startLearn(){makeChapterButtons("chapterLearnList",chooseLearnChapter);showOnly("learnChapters");}
+function chooseLearnChapter(ch){selectedChapter=ch;document.getElementById("learnTopicHeading").textContent="Chapter "+ch.id+": "+ch.name+" · Choose a topic";document.getElementById("topicSearch").value="";renderTopicList("");showOnly("learnTopics");}
+function renderTopicList(query){const box=document.getElementById("topicList");box.innerHTML="";const topics=selectedChapter.topics.filter(t=>t.toLowerCase().includes(query.toLowerCase()));if(!topics.length){box.innerHTML='<p class="small">No matching topics. Try another search.</p>';return;}topics.forEach(t=>{const b=document.createElement("button");b.className="topic";const implemented=selectedChapter.id===3&&t==="Ohm's Law";b.innerHTML='<span>'+t+(implemented?'':' <small class="muted">(content coming soon)</small>')+'</span><span>→</span>';b.addEventListener("click",()=>{selectedTopic=t;if(implemented){document.getElementById("lessonBreadcrumb").textContent="Chapter 3 · Current Electricity / Ohm's Law";showOnly("lesson");}else{alert("This topic is listed for navigation, but its lesson content has not been built yet. We are building one topic at a time.");}});box.appendChild(b);});}
+document.getElementById("topicSearch").addEventListener("input",e=>renderTopicList(e.target.value));
+function startTest(){stopTimer();makeChapterButtons("chapterTestList",chooseTestChapter);showOnly("testChapters");}
+function chooseTestChapter(ch){selectedChapter=ch;document.getElementById("testSetupHeading").textContent="Chapter "+ch.id+": "+ch.name;document.getElementById("testTopicChooser").hidden=true;const sel=document.getElementById("testTopicSelect");sel.innerHTML="";ch.topics.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;sel.appendChild(o);});showOnly("testSetup");}
+function showTopicTestChoices(){document.getElementById("testTopicChooser").hidden=false;}
+function startTestForCurrentTopic(){selectedChapter=chapters[2];selectedTopic="Ohm's Law";document.getElementById("testSetupHeading").textContent="Chapter 3: Current Electricity";document.getElementById("testTopicSelect").innerHTML="<option>Ohm's Law</option>";document.getElementById("testTopicChooser").hidden=true;showOnly("testSetup");beginTest("topic");}
+const questionBank={
+ easy:[
+  {q:"If voltage doubles while resistance remains constant, what happens to current?",prompt:"Use Ohm's law: I = V/R.",opts:["Current becomes half","Current stays the same","Current doubles","Current becomes zero"],correct:2,why:"I = V/R. With constant R, doubling V doubles I."},
+  {q:"A 6 V battery is connected across a 3 Ω resistor. Find the current.",prompt:"Choose the correct value.",opts:["0.5 A","2 A","3 A","18 A"],correct:1,why:"I = V/R = 6/3 = 2 A."},
+  {q:"What is the SI unit of resistance?",prompt:"Recall the unit.",opts:["Ampere","Volt","Ohm","Watt"],correct:2,why:"Resistance is measured in ohms (Ω)."}
+ ],
+ medium:[
+  {q:"A resistor carries 2 A at 8 V. What is its resistance?",prompt:"Assume an ohmic conductor.",opts:["2 Ω","4 Ω","6 Ω","16 Ω"],correct:1,why:"R = V/I = 8/2 = 4 Ω."},
+  {q:"A 12 Ω resistor is connected to 6 V. Find the current.",prompt:"Use I = V/R.",opts:["0.5 A","2 A","6 A","72 A"],correct:0,why:"I = 6/12 = 0.5 A."},
+  {q:"If voltage stays constant and resistance doubles, current will...",prompt:"Use I = V/R.",opts:["Double","Become half","Stay the same","Become zero in every case"],correct:1,why:"Current is inversely proportional to resistance when voltage is constant."}
+ ],
+ hard:[
+  {q:"A conductor carries 0.4 A when the potential difference is 2 V. What current flows at 5 V if its resistance stays constant?",prompt:"Find R first, then calculate the new current.",opts:["0.16 A","0.4 A","1.0 A","2.5 A"],correct:2,why:"R = 2/0.4 = 5 Ω. New current = 5/5 = 1 A."},
+  {q:"A 4 Ω resistor and a 2 Ω resistor are connected in series to a 12 V ideal battery. What is the circuit current?",prompt:"For series resistors, add their resistances.",opts:["1 A","2 A","3 A","6 A"],correct:1,why:"Rtotal = 4 + 2 = 6 Ω. I = 12/6 = 2 A."},
+  {q:"A wire's resistance is 5 Ω at a fixed temperature. What potential difference is needed for 3 A?",prompt:"Use V = IR.",opts:["1.67 V","8 V","15 V","25 V"],correct:2,why:"V = IR = 3 × 5 = 15 V."}
+ ],
+ extreme:[
+  {q:"A 6 Ω resistor draws 2 A. If the resistance is changed to 9 Ω and voltage remains unchanged, what is the new current?",prompt:"First infer the original voltage.",opts:["0.75 A","1.0 A","1.33 A","3.0 A"],correct:1,why:"Original V = IR = 2 × 6 = 12 V. New I = 12/9 = 1.33 A. The correct option should be 1.33 A.",fix:2},
+  {q:"A device has 10 V across it and current 0.5 A. What is its resistance?",prompt:"Use R = V/I.",opts:["5 Ω","10 Ω","20 Ω","50 Ω"],correct:2,why:"R = 10/0.5 = 20 Ω."},
+  {q:"A 2 Ω and 4 Ω resistor are connected in series to 18 V. What is the potential difference across the 4 Ω resistor?",prompt:"Find total current, then use V₄ = IR₄.",opts:["3 V","6 V","12 V","18 V"],correct:2,why:"Total resistance = 6 Ω, current = 18/6 = 3 A. Voltage across 4 Ω = 3 × 4 = 12 V."}
+ ]
+};
+const difficultyInfo={easy:{seconds:10,points:1,penalty:.25},medium:{seconds:20,points:2,penalty:.5},hard:{seconds:30,points:3,penalty:1},extreme:{seconds:45,points:5,penalty:1.5}};
+let activeQuestions=[],questionIndex=0,timeLeft=0,timerId=null,locked=false,score=0,correctN=0,wrongN=0,timeoutN=0,answerHistory=[],activeDifficulty="easy",activeTestType="topic";
+function beginTest(type){activeTestType=type;const diff=document.querySelector('input[name="difficulty"]:checked');activeDifficulty=diff?diff.value:"easy";if(selectedChapter.id!==3){alert("The question bank is currently available only for the Current Electricity sample. Other chapter test banks have not been built yet.");return;}if(type==="topic"){const topic=document.getElementById("testTopicSelect").value;if(topic!=="Ohm's Law"){alert("This topic's question bank is not ready yet. Currently, the test prototype supports Ohm's Law only.");return;}}activeQuestions=[...questionBank[activeDifficulty]];if(type==="chapter")activeQuestions=activeQuestions.slice(0,3);questionIndex=0;score=0;correctN=0;wrongN=0;timeoutN=0;answerHistory=[];showOnly("test");loadQuestion();}
+function loadQuestion(){stopTimer();locked=false;const q=activeQuestions[questionIndex];document.getElementById("quiz").reset();document.getElementById("questionText").textContent=q.q;document.getElementById("questionPrompt").textContent=q.prompt;document.getElementById("testProgress").textContent="Question "+(questionIndex+1)+" of "+activeQuestions.length+" · "+activeDifficulty.toUpperCase();document.getElementById("testProgressBar").style.width=(questionIndex/activeQuestions.length*100)+"%";const box=document.getElementById("answerOptions");box.innerHTML="";q.opts.forEach((opt,i)=>{const lab=document.createElement("label");lab.className="option";lab.innerHTML='<input type="radio" name="answer" value="'+i+'"> '+opt;box.appendChild(lab);});document.getElementById("testFeedback").hidden=true;document.getElementById("nextQuestionBtn").hidden=true;document.querySelector('#quiz button[type="submit"]').disabled=false;timeLeft=difficultyInfo[activeDifficulty].seconds;updateTimerText();timerId=setInterval(()=>{timeLeft--;updateTimerText();if(timeLeft<=0){stopTimer();if(!locked)lockAnswer(null,true);}},1000);}
+function stopTimer(){if(timerId!==null){clearInterval(timerId);timerId=null;}}
+function updateTimerText(){const el=document.getElementById("timer");el.textContent="00:"+String(Math.max(0,timeLeft)).padStart(2,"0");el.style.color=timeLeft<=5?"var(--red)":"var(--orange)";}
+document.getElementById("quiz").addEventListener("submit",function(e){e.preventDefault();if(locked)return;const chosen=new FormData(this).get("answer");if(chosen===null){document.getElementById("testFeedback").hidden=false;document.getElementById("testFeedback").textContent="Select an answer first, or wait for the timer to expire.";return;}lockAnswer(Number(chosen),false);});
+function lockAnswer(chosen,timedOut){if(locked)return;locked=true;stopTimer();document.querySelector('#quiz button[type="submit"]').disabled=true;document.querySelectorAll('#answerOptions input').forEach(x=>x.disabled=true);const q=activeQuestions[questionIndex];const correctIndex=q.fix!==undefined?q.fix:q.correct;const fb=document.getElementById("testFeedback");fb.hidden=false;let msg="",points=0;if(timedOut){timeoutN++;points=-difficultyInfo[activeDifficulty].penalty;msg='<strong class="bad">Time is up.</strong><p>No answer was locked. Penalty: '+points+' points.</p>';}else if(chosen===correctIndex){correctN++;points=difficultyInfo[activeDifficulty].points;msg='<strong class="good">Correct! +'+points+' points</strong><p>'+q.why+'</p>';}else{wrongN++;points=-difficultyInfo[activeDifficulty].penalty;msg='<strong class="warn">Not correct. '+points+' points</strong><p>'+q.why+'</p>';}score+=points;answerHistory.push({chosen,correct:chosen===correctIndex&&!timedOut,timedOut});fb.innerHTML=msg;document.getElementById("nextQuestionBtn").textContent=questionIndex===activeQuestions.length-1?"View results →":"Next question →";document.getElementById("nextQuestionBtn").hidden=false;}
+function nextQuestion(){if(!locked)return;if(questionIndex<activeQuestions.length-1){questionIndex++;loadQuestion();}else{finishTest();}}
+function endTestEarly(){stopTimer();finishTest();}
+function finishTest(){stopTimer();showOnly("testResults");document.getElementById("finalScore").textContent=score.toFixed(2).replace(/\.00$/,"")+" points";document.getElementById("correctCount").textContent=correctN;document.getElementById("wrongCount").textContent=wrongN;document.getElementById("timeoutCount").textContent=timeoutN;const allPerfect=correctN===activeQuestions.length&&wrongN===0&&timeoutN===0;const bonus=allPerfect?activeQuestions.length*2:0;document.getElementById("rewardCount").textContent=(Math.max(0,score)+bonus).toFixed(2).replace(/\.00$/,"");document.getElementById("resultSummary").textContent=correctN+" correct, "+wrongN+" wrong, "+timeoutN+" timed out out of "+activeQuestions.length+" questions.";const reward=document.getElementById("perfectReward");reward.hidden=!allPerfect;if(allPerfect)reward.innerHTML='<strong class="good">Perfect run unlocked!</strong><p>Bonus: +'+bonus+' reward points. Great accuracy. Try the next difficulty when ready.</p>';document.getElementById("testProgressBar").style.width="100%";}
+function openExperiment(){stopTimer();showOnly("experiment");updateExperiment();}
+function updateExperiment(){const v=Number(document.getElementById("voltage").value),r=Number(document.getElementById("resistance").value),i=v/r;document.getElementById("voltageLabel").textContent=v+" V";document.getElementById("resistanceLabel").textContent=r+" Ω";document.getElementById("currentValue").textContent=i.toFixed(2)+" A";document.getElementById("calculation").textContent="I = "+v+" V / "+r+" Ω";document.getElementById("experimentInsight").textContent=v===0?"With zero potential difference, current is zero in this simplified model.":"Current = "+i.toFixed(2)+" A. Increase voltage to increase current, or increase resistance to reduce it.";}
+document.getElementById("voltage").addEventListener("input",updateExperiment);document.getElementById("resistance").addEventListener("input",updateExperiment);
+function resetExperiment(){document.getElementById("voltage").value=6;document.getElementById("resistance").value=3;updateExperiment();}
+let switchClosed=false;
+function openBuilder(){stopTimer();showOnly("builder");switchClosed=false;updateCircuit();}
+function toggleSwitch(){switchClosed=!switchClosed;updateCircuit();}
+function updateCircuit(){const v=Number(document.getElementById("battery").value),r=Number(document.getElementById("resistorSelect").value),i=switchClosed?v/r:0;document.getElementById("switchBtn").textContent=switchClosed?"Open switch":"Close switch";document.getElementById("switchLabel").textContent=switchClosed?"CLOSED":"OPEN";document.getElementById("switchWire").setAttribute("d",switchClosed?"M105 35 H165":"M105 35 L150 35");document.getElementById("switchWire").setAttribute("stroke",switchClosed?"#86efac":"#fbbf24");document.getElementById("circuitStatus").textContent=switchClosed?"Circuit closed":"Circuit open";document.getElementById("circuitResult").textContent=switchClosed?v+" V / "+r+" Ω = "+i.toFixed(2)+" A. The idealized circuit is complete.":"The open switch interrupts the circuit. Current is zero.";document.getElementById("circuitCurrent").textContent="I = "+i.toFixed(2)+" A";}
+document.getElementById("battery").addEventListener("change",updateCircuit);document.getElementById("resistorSelect").addEventListener("change",updateCircuit);
+
+// Lesson narration: segment-based speech with real pause/resume and previous/next controls.
+const lessonScripts = {
+  english: [
+    "Welcome to Physics Booster Lab. Today we will understand Ohm's law by looking at what happens inside a simple circuit.",
+    "A battery creates a potential difference between its terminals. When the circuit is closed, an electric field is established in the conducting path.",
+    "Charges are already present in the wire. The electric field makes them drift, and this movement of charge is what we call electric current.",
+    "Resistance describes how strongly a component opposes current. For an ohmic conductor, we assume physical conditions such as temperature remain constant.",
+    "Ohm's law says that potential difference equals current multiplied by resistance. The equation is V equals I R.",
+    "If we need current, rearrange the equation to I equals V divided by R. So six volts across three ohms gives two amperes.",
+    "Now you try. Predict the current for twelve volts across four ohms. Calculate first, then open the experiment and check your answer."
+  ],
+  hinglish: [
+    "Welcome to Physics Booster Lab. Aaj hum Ohm's law ko sirf ratne ke bajaye samjhenge, ek simple circuit ke through.",
+    "Battery ke terminals ke beech potential difference banata hai. Jab circuit close hota hai, conducting path mein electric field establish hota hai.",
+    "Wire ke andar charges pehle se maujood hote hain. Electric field un charges ko drift karwata hai. Charge ke flow ki rate ko electric current kehte hain.",
+    "Resistance batata hai ki component current ke flow ko kitna oppose karta hai. Ohm's law ke liye temperature jaise physical conditions constant maante hain.",
+    "Ohm's law kehta hai potential difference, current aur resistance ke product ke barabar hota hai. Formula hai V equals I into R.",
+    "Current nikalna ho toh formula ko rearrange karo: I equals V divided by R. Isliye six volt ko three ohm se divide karenge, toh current two ampere hoga.",
+    "Ab tumhari baari. Twelve volt aur four ohm ke liye current pehle khud calculate karo. Uske baad experiment kholo aur apna answer check karo."
+  ],
+  hindi: [
+    "Physics Booster Lab mein aapka swagat hai. Aaj hum ek saral paripath ke madhyam se Ohm ka niyam samjhenge.",
+    "Battery ke dono terminals ke beech vibhavantar hota hai. Jab paripath band hota hai, to chalak mein vidyut kshetra sthapit hota hai.",
+    "Taar mein aavesh pehle se maujood hote hain. Vidyut kshetra in aaveshon ko ek nirdisht drift gati deta hai. Aavesh ke pravah ki dar ko vidyut dhara kehte hain.",
+    "Pratirodh batata hai ki koi ghatak dhara ke pravah ka kitna virodh karta hai. Ohm ke niyam mein taapmaan jaisi bhautik paristhitiyan sthir maani jaati hain.",
+    "Ohm ke niyam ke anusaar vibhavantar, dhara aur pratirodh ke gunanphal ke barabar hota hai. Sutra hai V barabar I guna R.",
+    "Dhara nikalne ke liye sutra ko badal kar I barabar V bhaag R likhte hain. Isliye chhah volt ko teen ohm se bhaag dene par do ampere milte hain.",
+    "Ab aap abhyas kijiye. Baarah volt aur chaar ohm ke liye dhara khud nikaaliye. Phir prayog kholkar apne uttar ki jaanch kijiye."
+  ]
+};
+let lessonIndex = 0;
+let lessonVoiceState = "stopped";
+function getLessonLanguage(){ return document.getElementById("preferredLanguage").value; }
+function currentLessonSegments(){ return lessonScripts[getLessonLanguage()] || lessonScripts.english; }
+function renderLessonCaption(){
+  const segments = currentLessonSegments();
+  lessonIndex = Math.max(0, Math.min(lessonIndex, segments.length - 1));
+  document.getElementById("captionLabel").textContent = "Teacher captions · " + (lessonIndex + 1) + " of " + segments.length;
+  document.getElementById("lessonCaption").textContent = segments[lessonIndex];
 }
-function stopVoice(){
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  playing = false; $('voiceStatus').textContent = 'Voice stopped. Captions remain available.';
+function updateLessonAudioStatus(text){ document.getElementById("lessonAudioStatus").textContent = text; }
+function updateLessonAudioButtons(){
+  const pause = document.getElementById("lessonPause");
+  if(lessonVoiceState === "paused"){ pause.textContent = "▶ Resume"; pause.disabled = false; }
+  else if(lessonVoiceState === "playing"){ pause.textContent = "Ⅱ Pause"; pause.disabled = false; }
+  else { pause.textContent = "Ⅱ Pause"; pause.disabled = true; }
 }
-function speakFromCurrent(){
-  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)){
-    $('voiceStatus').textContent = 'This browser does not provide speech synthesis. You can still read the captions.';
-    showSegment(segmentIndex); return;
+function stopLessonVoice(resetCaption){
+  if("speechSynthesis" in window) window.speechSynthesis.cancel();
+  lessonVoiceState = "stopped";
+  updateLessonAudioButtons();
+  if(resetCaption){lessonIndex=0;renderLessonCaption();}
+  updateLessonAudioStatus("Voice stopped. You can restart the lesson or navigate captions manually.");
+}
+function speakLessonSegment(){
+  const segments = currentLessonSegments();
+  if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+    lessonVoiceState = "stopped"; updateLessonAudioButtons();
+    updateLessonAudioStatus("Voice is not supported in this browser. Captions and explanations are still available.");
+    return;
   }
-  window.speechSynthesis.cancel(); playing = true;
-  const speakNext = () => {
-    if (!playing) return;
-    if (segmentIndex >= segments.length) { playing=false; $('voiceStatus').textContent='Lesson complete. Replay or use Next caption.'; return; }
-    showSegment(segmentIndex);
-    utterance = new SpeechSynthesisUtterance(segments[segmentIndex]);
-    utterance.lang = 'en-IN'; utterance.rate = 0.88; utterance.pitch = 1;
-    utterance.onend = () => { if(playing){segmentIndex++; if(segmentIndex < segments.length) speakNext(); else {playing=false;$('voiceStatus').textContent='Lesson complete. Replay or use Next caption.';}} };
-    utterance.onerror = () => { playing=false; $('voiceStatus').textContent='Voice could not start. Captions are still available; try another browser or device voice setting.'; };
-    window.speechSynthesis.speak(utterance);
+  if(lessonIndex >= segments.length){
+    lessonVoiceState = "stopped"; updateLessonAudioButtons();
+    updateLessonAudioStatus("Lesson complete. Replay it or review the captions.");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  renderLessonCaption();
+  const utterance = new SpeechSynthesisUtterance(segments[lessonIndex]);
+  const language = getLessonLanguage();
+  utterance.lang = language === "hindi" ? "hi-IN" : "en-IN";
+  utterance.rate = 0.88;
+  utterance.pitch = 1;
+  utterance.onend = () => {
+    if(lessonVoiceState === "playing"){
+      lessonIndex++;
+      if(lessonIndex < currentLessonSegments().length) speakLessonSegment();
+      else {
+        lessonVoiceState = "stopped"; updateLessonAudioButtons();
+        updateLessonAudioStatus("Lesson complete. Replay it or review the captions.");
+      }
+    }
   };
-  speakNext(); $('voiceStatus').textContent='Teacher is speaking. Captions are shown above.';
+  utterance.onerror = () => {
+    lessonVoiceState = "stopped"; updateLessonAudioButtons();
+    updateLessonAudioStatus("Voice could not continue. Captions remain available; check your phone's speech/voice settings.");
+  };
+  window.speechSynthesis.speak(utterance);
+  lessonVoiceState = "playing";
+  updateLessonAudioButtons();
+  updateLessonAudioStatus("Teacher is speaking. Pause to hold the lesson, or use previous/next caption to navigate.");
 }
-$('playBtn').addEventListener('click',()=>{segmentIndex=0;speakFromCurrent();});
-$('pauseBtn').addEventListener('click',stopVoice);
-$('nextBtn').addEventListener('click',()=>{stopVoice();segmentIndex=(segmentIndex+1)%segments.length;showSegment(segmentIndex);});
-const checkedCorrect = new Set();
-function checkQuestion(name,correct,feedbackId,explanation){
-  const selected = document.querySelector(`input[name="${name}"]:checked`);
-  const feedback = $(feedbackId);
-  if(!selected){feedback.textContent='Choose an answer first.';feedback.className='feedback bad';return;}
-  if(selected.value===correct){feedback.textContent='Correct! '+explanation;feedback.className='feedback good';checkedCorrect.add(name);}
-  else {feedback.textContent='Not quite. '+explanation;feedback.className='feedback bad';checkedCorrect.delete(name);}
-  $('score').textContent=`Score: ${checkedCorrect.size} / 3 checked correctly`;
+function startLessonVoice(){
+  if(lessonIndex >= currentLessonSegments().length) lessonIndex = 0;
+  lessonVoiceState = "playing";
+  speakLessonSegment();
 }
-$('resetQuiz').addEventListener('click',()=>{
-  document.querySelectorAll('input[type=radio]').forEach(el=>el.checked=false);
-  ['feedback1','feedback2','feedback3'].forEach(id=>{$(id).textContent='';$(id).className='feedback';});
-  checkedCorrect.clear();$('score').textContent='Score: 0 / 3 checked correctly';
+document.getElementById("lessonPlay").addEventListener("click",()=>{
+  if(lessonVoiceState === "paused" && "speechSynthesis" in window){
+    window.speechSynthesis.resume(); lessonVoiceState="playing"; updateLessonAudioButtons();
+    updateLessonAudioStatus("Resumed. Teacher is speaking."); return;
+  }
+  startLessonVoice();
 });
-showSegment(0);updateCircuit();
+document.getElementById("lessonPause").addEventListener("click",()=>{
+  if(!("speechSynthesis" in window)) return;
+  if(lessonVoiceState === "playing"){
+    window.speechSynthesis.pause(); lessonVoiceState="paused"; updateLessonAudioButtons();
+    updateLessonAudioStatus("Paused. Press Resume to continue from the same place.");
+  } else if(lessonVoiceState === "paused"){
+    window.speechSynthesis.resume(); lessonVoiceState="playing"; updateLessonAudioButtons();
+    updateLessonAudioStatus("Resumed. Teacher is speaking.");
+  }
+});
+document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(true));
+document.getElementById("lessonPrevious").addEventListener("click",()=>{
+  if("speechSynthesis" in window) window.speechSynthesis.cancel();
+  lessonVoiceState="stopped"; lessonIndex=Math.max(0,lessonIndex-1);
+  renderLessonCaption(); updateLessonAudioButtons(); updateLessonAudioStatus("Previous caption selected. Press Play lesson to hear it from here.");
+});
+document.getElementById("lessonNext").addEventListener("click",()=>{
+  if("speechSynthesis" in window) window.speechSynthesis.cancel();
+  lessonVoiceState="stopped"; lessonIndex=Math.min(currentLessonSegments().length-1,lessonIndex+1);
+  renderLessonCaption(); updateLessonAudioButtons(); updateLessonAudioStatus("Next caption selected. Press Play lesson to hear it from here.");
+});
+document.getElementById("schoolMedium").addEventListener("change", updateLanguageHint);
+document.getElementById("preferredLanguage").addEventListener("change",()=>{
+  stopLessonVoice(false); renderLessonCaption(); updateLanguageHint();
+});
+function updateLanguageHint(){
+  const school = document.getElementById("schoolMedium").value;
+  const pref = getLessonLanguage();
+  const labels = {english:"English",hinglish:"Hinglish",hindi:"Hindi"};
+  document.getElementById("languageHint").textContent =
+    (school === "english" ? "English-medium school" : "Hindi-medium school") +
+    " · " + labels[pref] + " explanation selected. Exam answers should follow your school's required medium.";
+}
+renderLessonCaption();
+updateLessonAudioButtons();
+updateLanguageHint();
+
+showOnly("home");updateExperiment();updateCircuit();
 </script>
 </body>
 </html>
