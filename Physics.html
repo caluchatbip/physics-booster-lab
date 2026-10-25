@@ -64,7 +64,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
 
 </head>
 <body>
-<header><div class="brand">PHYSICS <span>BOOSTER LAB</span></div><div class="tag">ENGINE 0.3</div></header>
+<header><div class="brand">PHYSICS <span>BOOSTER LAB</span></div><div class="tag">ENGINE 0.5</div></header>
 <main>
   <div class="tag">CLASS XII / PHYSICS</div>
   <h1>Understand the concept.<br>Prove what you know.</h1>
@@ -234,7 +234,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
   </section>
 </main>
-<footer>Physics Booster Lab · Prototype v0.3<br>Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
+<footer>Physics Booster Lab · Prototype v0.5<br>Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
 
 <script>
 const chapters = [
@@ -344,11 +344,25 @@ let lessonVoiceState = "stopped";
 let utteranceToken = 0;
 let currentUtterance = null;
 let speakTimerId = null;
+let subPhraseIndex = 0;
 let resumeCharIndex = 0;
 let currentSpeechCharIndex = 0;
 
 function getLessonLanguage(){ return document.getElementById("preferredLanguage").value; }
 function currentLessonSegments(){ return lessonScripts[getLessonLanguage()] || lessonScripts.english; }
+
+// Split speech into short phrases. The full caption remains visible on screen.
+function splitIntoSubPhrases(text){
+  const parts = String(text || "").match(/[^,;:.!?]+[,;:.!?]*/g);
+  const cleaned = parts ? parts.map(part => part.trim()).filter(Boolean) : [];
+  return cleaned.length ? cleaned : [String(text || "").trim()].filter(Boolean);
+}
+
+function resetSpeechProgress(){
+  subPhraseIndex = 0;
+  resumeCharIndex = 0;
+  currentSpeechCharIndex = 0;
+}
 
 function renderLessonCaption(){
   const segments = currentLessonSegments();
@@ -387,21 +401,20 @@ function updateLessonAudioButtons(){
     playBtn.disabled = false;
     pauseBtn.textContent = "Ⅱ Pause";
     pauseBtn.disabled = true;
-    stopBtn.disabled = (lessonIndex === 0);
+    stopBtn.disabled = false;
   }
-
   prevBtn.disabled = lessonIndex <= 0;
   nextBtn.disabled = lessonIndex >= total - 1;
 }
 
 function cancelCurrentUtterance(){
-  // Invalidate old callbacks and cancel any delayed speech request first.
   utteranceToken++;
   if(speakTimerId !== null){
     clearTimeout(speakTimerId);
     speakTimerId = null;
   }
   if(currentUtterance){
+    currentUtterance.onboundary = null;
     currentUtterance.onend = null;
     currentUtterance.onerror = null;
     currentUtterance = null;
@@ -414,22 +427,19 @@ function cancelCurrentUtterance(){
 function stopLessonVoice(resetCaption){
   cancelCurrentUtterance();
   lessonVoiceState = "stopped";
-  resumeCharIndex = 0;
-  currentSpeechCharIndex = 0;
+  resetSpeechProgress();
   if(resetCaption) lessonIndex = 0;
   renderLessonCaption();
   updateLessonAudioButtons();
   updateLessonAudioStatus(resetCaption
     ? "Stopped. Press Play lesson to restart from the beginning."
-    : "Voice stopped. Captions remain available.");
+    : "Voice stopped. The selected caption is preserved; Play starts it from the beginning.");
 }
 
 function selectBestVoice(targetLang){
-  if(!("speechSynthesis" in window) ||
-     typeof window.speechSynthesis.getVoices !== "function") return null;
+  if(!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
   const voices = window.speechSynthesis.getVoices();
   if(!voices || !voices.length) return null;
-
   const target = targetLang.toLowerCase().replace("_", "-");
   const prefix = target.split("-")[0];
   return voices.find(v => v.lang && v.lang.toLowerCase().replace("_", "-") === target)
@@ -439,7 +449,6 @@ function selectBestVoice(targetLang){
 
 function speakLessonSegment(){
   const segments = currentLessonSegments();
-
   if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
     lessonVoiceState = "stopped";
     updateLessonAudioButtons();
@@ -449,6 +458,7 @@ function speakLessonSegment(){
 
   if(lessonIndex >= segments.length){
     lessonIndex = segments.length - 1;
+    resetSpeechProgress();
     lessonVoiceState = "stopped";
     renderLessonCaption();
     updateLessonAudioButtons();
@@ -456,25 +466,32 @@ function speakLessonSegment(){
     return;
   }
 
-  // Cancel old speech and wait briefly before speaking, reducing Android TTS queue races.
   cancelCurrentUtterance();
   const myToken = utteranceToken;
   renderLessonCaption();
   lessonVoiceState = "playing";
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Teacher is speaking. Pause saves the latest word boundary; Resume continues from there.");
+  updateLessonAudioStatus("Teacher is speaking. Pause saves the current phrase and, when supported, the word position.");
 
   speakTimerId = setTimeout(() => {
     speakTimerId = null;
     if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
 
     const activeSegments = currentLessonSegments();
-    const fullSegment = activeSegments[lessonIndex] || "";
-    const startAt = Math.max(0, Math.min(resumeCharIndex, fullSegment.length));
-    const textToSpeak = fullSegment.slice(startAt);
-    if(!textToSpeak) {
-      resumeCharIndex = 0;
-      currentSpeechCharIndex = 0;
+    const fullCaption = activeSegments[lessonIndex] || "";
+    const phrases = splitIntoSubPhrases(fullCaption);
+    if(subPhraseIndex >= phrases.length) resetSpeechProgress();
+
+    const phrase = phrases[subPhraseIndex] || "";
+    const startAt = Math.max(0, Math.min(resumeCharIndex, phrase.length));
+    const textToSpeak = phrase.slice(startAt).trim();
+    if(!textToSpeak){
+      if(subPhraseIndex < phrases.length - 1){
+        subPhraseIndex++;
+        resumeCharIndex = 0;
+        currentSpeechCharIndex = 0;
+        speakLessonSegment();
+      }
       return;
     }
 
@@ -482,17 +499,13 @@ function speakLessonSegment(){
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     currentUtterance = utterance;
 
-    // Android/browser voices may report word boundaries. Save the latest boundary
-    // so Resume can speak the remaining text instead of replaying the full caption.
+    // Best-effort word tracking. Some Android voices do not fire this event.
     utterance.onboundary = (event) => {
-      if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
-      if(typeof event.charIndex === "number") {
-        currentSpeechCharIndex = startAt + event.charIndex;
-      }
+     if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
+      if(event && typeof event.charIndex === "number") currentSpeechCharIndex = startAt + event.charIndex;
     };
 
     const language = getLessonLanguage();
-    // Existing Hindi script is Romanized, so prefer an English-India voice for Hinglish/Roman text.
     const targetLang = language === "hindi" ? "hi-IN" : "en-IN";
     utterance.lang = targetLang;
     const matchedVoice = selectBestVoice(targetLang) || selectBestVoice("en-IN");
@@ -505,12 +518,18 @@ function speakLessonSegment(){
       currentUtterance = null;
       resumeCharIndex = 0;
       currentSpeechCharIndex = 0;
-      const currentSegments = currentLessonSegments();
-      if(lessonIndex < currentSegments.length - 1){
+      const latestSegments = currentLessonSegments();
+      const latestPhrases = splitIntoSubPhrases(latestSegments[lessonIndex] || "");
+      if(subPhraseIndex < latestPhrases.length - 1){
+        subPhraseIndex++;
+        speakLessonSegment();
+      } else if(lessonIndex < latestSegments.length - 1){
         lessonIndex++;
+        resetSpeechProgress();
         renderLessonCaption();
         speakLessonSegment();
       } else {
+        resetSpeechProgress();
         lessonVoiceState = "stopped";
         renderLessonCaption();
         updateLessonAudioButtons();
@@ -526,44 +545,39 @@ function speakLessonSegment(){
       lessonVoiceState = "stopped";
       renderLessonCaption();
       updateLessonAudioButtons();
-      updateLessonAudioStatus("Voice stopped unexpectedly. Press Play lesson to retry this caption; the text remains visible.");
+      updateLessonAudioStatus("Voice stopped unexpectedly. Press Play to retry this phrase; captions remain visible.");
     };
 
     try {
-      if(window.speechSynthesis.paused){
-        window.speechSynthesis.resume();
-      }
       window.speechSynthesis.speak(utterance);
     } catch(e) {
       if(myToken !== utteranceToken) return;
       currentUtterance = null;
       lessonVoiceState = "stopped";
-      renderLessonCaption();
       updateLessonAudioButtons();
-      updateLessonAudioStatus("The browser could not start voice. Press Play lesson to try again or read the captions.");
+      updateLessonAudioStatus("The browser could not start voice. Press Play to try again.");
     }
   }, 60);
 }
 
 function startLessonVoice(){
   const segments = currentLessonSegments();
-  if(lessonIndex >= segments.length - 1 &&
-     lessonVoiceState === "stopped" &&
+  if(lessonIndex >= segments.length - 1 && lessonVoiceState === "stopped" &&
      document.getElementById("lessonAudioStatus").textContent.startsWith("Lesson complete")){
     lessonIndex = 0;
+    resetSpeechProgress();
   }
   speakLessonSegment();
 }
 
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
-  // Keep the latest reported word boundary before canceling the utterance.
   resumeCharIndex = currentSpeechCharIndex;
   cancelCurrentUtterance();
   lessonVoiceState = "paused";
   renderLessonCaption();
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Paused at caption " + (lessonIndex + 1) + ". Press Resume to continue from the latest word boundary.");
+  updateLessonAudioStatus("Paused at caption " + (lessonIndex + 1) + ", phrase " + (subPhraseIndex + 1) + ". Resume continues from this phrase, or the reported word position if available.");
 }
 
 function resumeLessonVoice(){
@@ -571,32 +585,16 @@ function resumeLessonVoice(){
   speakLessonSegment();
 }
 
-document.getElementById("lessonPlay").addEventListener("click",()=>{
-  if(lessonVoiceState === "paused"){ resumeLessonVoice(); return; }
-  if(lessonVoiceState === "playing") return;
-  startLessonVoice();
-});
-
-document.getElementById("lessonPause").addEventListener("click",()=>{
-  if(lessonVoiceState === "playing") pauseLessonVoice();
-  else if(lessonVoiceState === "paused") resumeLessonVoice();
-});
-
-document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(false));
-
 function navigateLessonCaption(direction){
   const segments = currentLessonSegments();
   const targetIndex = Math.max(0, Math.min(segments.length - 1, lessonIndex + direction));
   if(targetIndex === lessonIndex) return;
-
   const wasPlaying = lessonVoiceState === "playing";
   const wasPaused = lessonVoiceState === "paused";
   cancelCurrentUtterance();
-  resumeCharIndex = 0;
-  currentSpeechCharIndex = 0;
+  resetSpeechProgress();
   lessonIndex = targetIndex;
   renderLessonCaption();
-
   if(wasPlaying){
     speakLessonSegment();
   } else if(wasPaused){
@@ -610,21 +608,28 @@ function navigateLessonCaption(direction){
   }
 }
 
+document.getElementById("lessonPlay").addEventListener("click",()=>{
+  if(lessonVoiceState === "paused"){ resumeLessonVoice(); return; }
+  if(lessonVoiceState === "playing") return;
+  startLessonVoice();
+});
+document.getElementById("lessonPause").addEventListener("click",()=>{
+  if(lessonVoiceState === "playing") pauseLessonVoice();
+  else if(lessonVoiceState === "paused") resumeLessonVoice();
+});
+// Stop preserves the selected caption; Play starts that caption from its beginning.
+document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(false));
 document.getElementById("lessonPrevious").addEventListener("click",()=>navigateLessonCaption(-1));
 document.getElementById("lessonNext").addEventListener("click",()=>navigateLessonCaption(1));
-
 document.getElementById("schoolMedium").addEventListener("change", updateLanguageHint);
 document.getElementById("preferredLanguage").addEventListener("change",()=>{
   stopLessonVoice(false);
-  resumeCharIndex = 0;
-  currentSpeechCharIndex = 0;
   lessonIndex = 0;
   renderLessonCaption();
   updateLessonAudioButtons();
   updateLanguageHint();
 });
 
-// Stop speech if the user switches apps/tabs or leaves the page.
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden && lessonVoiceState === "playing") pauseLessonVoice();
 });
