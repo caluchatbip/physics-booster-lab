@@ -557,7 +557,7 @@ document.getElementById("lessonPause").addEventListener("click",()=>{
   else if(lessonVoiceState === "paused") resumeLessonVoice();
 });
 
-document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(true));
+document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(false));
 
 function navigateLessonCaption(direction){
   const segments = currentLessonSegments();
