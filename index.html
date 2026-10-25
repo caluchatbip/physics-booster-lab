@@ -111,7 +111,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
             <option value="english" selected>English medium</option>
             <option value="hindi">Hindi medium</option>
           </select>
-          </div>
+        </div>
         <div>
           <label for="preferredLanguage">Preferred explanation language</label>
           <select id="preferredLanguage">
@@ -254,7 +254,7 @@ const chapters = [
  {id:14,name:"Semiconductor Electronics",topics:["Energy bands","Intrinsic and extrinsic semiconductors","p-n junction diode","Rectifier","Logic gates"]}
 ];
 const sections=["home","learnChapters","learnTopics","lesson","testChapters","testSetup","test","testResults","experiment","builder"];
-function showOnly(id){sections.forEach(n=>document.getElementById(n).hidden=n!==id);window.scrollTo({top:0,behavior:"smooth"});}
+function showOnly(id){if(id!=="lesson" && typeof stopLessonVoice==="function" && lessonVoiceState!=="stopped"){stopLessonVoice(false);}sections.forEach(n=>document.getElementById(n).hidden=n!==id);window.scrollTo({top:0,behavior:"smooth"});}
 function goHome(){stopTimer();showOnly("home");}
 function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
 let selectedChapter=chapters[2], selectedTopic="Ohm's Law";
@@ -304,7 +304,7 @@ function updateExperiment(){const v=Number(document.getElementById("voltage").va
 document.getElementById("voltage").addEventListener("input",updateExperiment);document.getElementById("resistance").addEventListener("input",updateExperiment);
 function resetExperiment(){document.getElementById("voltage").value=6;document.getElementById("resistance").value=3;updateExperiment();}
 let switchClosed=false;
-function openBuilder(){stopTimer();showOnly("builder");switchClosed=false;updateCircuit();}
+  function openBuilder(){stopTimer();showOnly("builder");switchClosed=false;updateCircuit();}
 function toggleSwitch(){switchClosed=!switchClosed;updateCircuit();}
 function updateCircuit(){const v=Number(document.getElementById("battery").value),r=Number(document.getElementById("resistorSelect").value),i=switchClosed?v/r:0;document.getElementById("switchBtn").textContent=switchClosed?"Open switch":"Close switch";document.getElementById("switchLabel").textContent=switchClosed?"CLOSED":"OPEN";document.getElementById("switchWire").setAttribute("d",switchClosed?"M105 35 H165":"M105 35 L150 35");document.getElementById("switchWire").setAttribute("stroke",switchClosed?"#86efac":"#fbbf24");document.getElementById("circuitStatus").textContent=switchClosed?"Circuit closed":"Circuit open";document.getElementById("circuitResult").textContent=switchClosed?v+" V / "+r+" Ω = "+i.toFixed(2)+" A. The idealized circuit is complete.":"The open switch interrupts the circuit. Current is zero.";document.getElementById("circuitCurrent").textContent="I = "+i.toFixed(2)+" A";}
 document.getElementById("battery").addEventListener("change",updateCircuit);document.getElementById("resistorSelect").addEventListener("change",updateCircuit);
@@ -343,26 +343,70 @@ let lessonIndex = 0;
 let lessonVoiceState = "stopped";
 let utteranceToken = 0;
 let currentUtterance = null;
+let speakTimerId = null;
+
 function getLessonLanguage(){ return document.getElementById("preferredLanguage").value; }
 function currentLessonSegments(){ return lessonScripts[getLessonLanguage()] || lessonScripts.english; }
+
 function renderLessonCaption(){
   const segments = currentLessonSegments();
   lessonIndex = Math.max(0, Math.min(lessonIndex, segments.length - 1));
-  document.getElementById("captionLabel").textContent = "Teacher captions · " + (lessonIndex + 1) + " of " + segments.length;
+  document.getElementById("captionLabel").textContent =
+    "Teacher captions · " + (lessonIndex + 1) + " of " + segments.length;
   document.getElementById("lessonCaption").textContent = segments[lessonIndex];
 }
-function updateLessonAudioStatus(text){ document.getElementById("lessonAudioStatus").textContent = text; }
-function updateLessonAudioButtons(){
-  const pause = document.getElementById("lessonPause");
-  if(lessonVoiceState === "paused"){ pause.textContent = "▶ Resume"; pause.disabled = false; }
-  else if(lessonVoiceState === "playing"){ pause.textContent = "Ⅱ Pause"; pause.disabled = false; }
-  else { pause.textContent = "Ⅱ Pause"; pause.disabled = true; }
+
+function updateLessonAudioStatus(text){
+  document.getElementById("lessonAudioStatus").textContent = text;
 }
+
+function updateLessonAudioButtons(){
+  const playBtn = document.getElementById("lessonPlay");
+  const pauseBtn = document.getElementById("lessonPause");
+  const stopBtn = document.getElementById("lessonStop");
+  const prevBtn = document.getElementById("lessonPrevious");
+  const nextBtn = document.getElementById("lessonNext");
+  const total = currentLessonSegments().length;
+
+  if(lessonVoiceState === "playing"){
+    playBtn.textContent = "▶ Playing...";
+    playBtn.disabled = true;
+    pauseBtn.textContent = "Ⅱ Pause";
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+  } else if(lessonVoiceState === "paused"){
+    playBtn.textContent = "▶ Play lesson";
+    playBtn.disabled = false;
+    pauseBtn.textContent = "▶ Resume";
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+  } else {
+    playBtn.textContent = "▶ Play lesson";
+    playBtn.disabled = false;
+    pauseBtn.textContent = "Ⅱ Pause";
+    pauseBtn.disabled = true;
+    stopBtn.disabled = (lessonIndex === 0);
+  }
+
+  prevBtn.disabled = lessonIndex <= 0;
+  nextBtn.disabled = lessonIndex >= total - 1;
+}
+
 function cancelCurrentUtterance(){
-  // Invalidate callbacks from an old utterance before cancelling it.
+  // Invalidate old callbacks and cancel any delayed speech request first.
   utteranceToken++;
-  currentUtterance = null;
-  if("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if(speakTimerId !== null){
+    clearTimeout(speakTimerId);
+    speakTimerId = null;
+  }
+  if(currentUtterance){
+    currentUtterance.onend = null;
+    currentUtterance.onerror = null;
+    currentUtterance = null;
+  }
+  if("speechSynthesis" in window){
+    try { window.speechSynthesis.cancel(); } catch(e) {}
+  }
 }
 function stopLessonVoice(resetCaption){
   cancelCurrentUtterance();
@@ -374,115 +418,192 @@ function stopLessonVoice(resetCaption){
     ? "Stopped. Press Play lesson to restart from the beginning."
     : "Voice stopped. Captions remain available.");
 }
+
+function selectBestVoice(targetLang){
+  if(!("speechSynthesis" in window) ||
+     typeof window.speechSynthesis.getVoices !== "function") return null;
+  const voices = window.speechSynthesis.getVoices();
+  if(!voices || !voices.length) return null;
+
+  const target = targetLang.toLowerCase().replace("_", "-");
+  const prefix = target.split("-")[0];
+  return voices.find(v => v.lang && v.lang.toLowerCase().replace("_", "-") === target)
+    || voices.find(v => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith(prefix))
+    || null;
+}
+
 function speakLessonSegment(){
   const segments = currentLessonSegments();
+
   if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
-    lessonVoiceState = "stopped"; updateLessonAudioButtons();
+    lessonVoiceState = "stopped";
+    updateLessonAudioButtons();
     updateLessonAudioStatus("Voice is not supported in this browser. Captions and explanations are still available.");
     return;
   }
+
   if(lessonIndex >= segments.length){
-    lessonVoiceState = "stopped"; updateLessonAudioButtons();
-    updateLessonAudioStatus("Lesson complete. Press Play lesson to start again.");
+    lessonIndex = segments.length - 1;
+    lessonVoiceState = "stopped";
+    renderLessonCaption();
+    updateLessonAudioButtons();
+    updateLessonAudioStatus("Lesson complete. Press Play lesson to replay.");
     return;
   }
 
-  // Cancel and invalidate any old utterance. Only the latest token may advance the lesson.
+  // Cancel old speech and wait briefly before speaking, reducing Android TTS queue races.
   cancelCurrentUtterance();
   const myToken = utteranceToken;
   renderLessonCaption();
-
-  const utterance = new SpeechSynthesisUtterance(segments[lessonIndex]);
-  currentUtterance = utterance;
-  const language = getLessonLanguage();
-  utterance.lang = language === "hindi" ? "hi-IN" : "en-IN";
-  utterance.rate = 0.88;
-  utterance.pitch = 1;
-  utterance.onend = () => {
-    if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
-    currentUtterance = null;
-    lessonIndex++;
-    if(lessonIndex < currentLessonSegments().length){
-      speakLessonSegment();
-    } else {
-      lessonVoiceState = "stopped"; updateLessonAudioButtons();
-      updateLessonAudioStatus("Lesson complete. Press Play lesson to replay, or use Previous/Next caption.");
-    }
-  };
-  utterance.onerror = (event) => {
-    if(myToken !== utteranceToken) return;
-    currentUtterance = null;
-    if(event && event.error === "canceled") return;
-    lessonVoiceState = "stopped"; updateLessonAudioButtons();
-    updateLessonAudioStatus("Voice stopped unexpectedly. Press Play to retry this caption; the lesson text is still available.");
-  };
   lessonVoiceState = "playing";
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Teacher is speaking. Pause holds the current caption; Resume replays that caption from its start if your browser cannot preserve the exact speech position.");
-  try {
-    window.speechSynthesis.speak(utterance);
-  } catch (e) {
-    lessonVoiceState = "stopped"; updateLessonAudioButtons();
-    updateLessonAudioStatus("The browser could not start voice. Try Play again or use the captions.");
-  }
+  updateLessonAudioStatus("Teacher is speaking. Pause holds the current caption; Resume replays that caption from its start.");
+
+  speakTimerId = setTimeout(() => {
+    speakTimerId = null;
+    if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
+
+    const activeSegments = currentLessonSegments();
+    const textToSpeak = activeSegments[lessonIndex];
+    if(!textToSpeak) return;
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    currentUtterance = utterance;
+
+    const language = getLessonLanguage();
+    // Existing Hindi script is Romanized, so prefer an English-India voice for Hinglish/Roman text.
+    const targetLang = language === "hindi" ? "hi-IN" : "en-IN";
+    utterance.lang = targetLang;
+    const matchedVoice = selectBestVoice(targetLang) || selectBestVoice("en-IN");
+    if(matchedVoice) utterance.voice = matchedVoice;
+    utterance.rate = 0.88;
+    utterance.pitch = 1;
+
+    utterance.onend = () => {
+      if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
+      currentUtterance = null;
+      const currentSegments = currentLessonSegments();
+      if(lessonIndex < currentSegments.length - 1){
+        lessonIndex++;
+        renderLessonCaption();
+        speakLessonSegment();
+      } else {
+        lessonVoiceState = "stopped";
+        renderLessonCaption();
+        updateLessonAudioButtons();
+        updateLessonAudioStatus("Lesson complete. Press Play lesson to replay, or use Previous/Next caption.");
+      }
+    };
+
+    utterance.onerror = (event) => {
+      if(myToken !== utteranceToken) return;
+      currentUtterance = null;
+      const errorCode = event && event.error ? String(event.error).toLowerCase() : "";
+      if(errorCode === "canceled" || errorCode === "interrupted") return;
+      lessonVoiceState = "stopped";
+      renderLessonCaption();
+      updateLessonAudioButtons();
+      updateLessonAudioStatus("Voice stopped unexpectedly. Press Play lesson to retry this caption; the text remains visible.");
+    };
+
+    try {
+     if(window.speechSynthesis.paused){
+        window.speechSynthesis.resume();
+      }
+      window.speechSynthesis.speak(utterance);
+    } catch(e) {
+      if(myToken !== utteranceToken) return;
+      currentUtterance = null;
+      lessonVoiceState = "stopped";
+      renderLessonCaption();
+      updateLessonAudioButtons();
+      updateLessonAudioStatus("The browser could not start voice. Press Play lesson to try again or read the captions.");
+    }
+  }, 60);
 }
+
 function startLessonVoice(){
-  if(lessonIndex >= currentLessonSegments().length) lessonIndex = 0;
+  const segments = currentLessonSegments();
+  if(lessonIndex >= segments.length - 1 &&
+     lessonVoiceState === "stopped" &&
+     document.getElementById("lessonAudioStatus").textContent.startsWith("Lesson complete")){
+    lessonIndex = 0;
+  }
   speakLessonSegment();
 }
+
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
-  // Android browser speech synthesis often reports paused but never resumes.
-  // Cancel the active phrase and retain its caption index for a dependable Resume.
   cancelCurrentUtterance();
   lessonVoiceState = "paused";
+  renderLessonCaption();
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Paused at this caption. Press Resume to hear this caption again from its beginning.");
+  updateLessonAudioStatus("Paused at caption " + (lessonIndex + 1) + ". Press Resume to hear this caption from its start.");
 }
+
 function resumeLessonVoice(){
   if(lessonVoiceState !== "paused") return;
   speakLessonSegment();
 }
+
 document.getElementById("lessonPlay").addEventListener("click",()=>{
   if(lessonVoiceState === "paused"){ resumeLessonVoice(); return; }
   if(lessonVoiceState === "playing") return;
   startLessonVoice();
 });
+
 document.getElementById("lessonPause").addEventListener("click",()=>{
   if(lessonVoiceState === "playing") pauseLessonVoice();
   else if(lessonVoiceState === "paused") resumeLessonVoice();
 });
+
 document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(true));
+
 function navigateLessonCaption(direction){
+  const segments = currentLessonSegments();
+  const targetIndex = Math.max(0, Math.min(segments.length - 1, lessonIndex + direction));
+  if(targetIndex === lessonIndex) return;
+
   const wasPlaying = lessonVoiceState === "playing";
   const wasPaused = lessonVoiceState === "paused";
   cancelCurrentUtterance();
-  const count = currentLessonSegments().length;
-  lessonIndex = Math.max(0, Math.min(count - 1, lessonIndex + direction));
+  lessonIndex = targetIndex;
   renderLessonCaption();
+
   if(wasPlaying){
-    lessonVoiceState = "playing";
     speakLessonSegment();
   } else if(wasPaused){
     lessonVoiceState = "paused";
     updateLessonAudioButtons();
-    updateLessonAudioStatus("Caption selected. Press Resume to hear this caption.");
+    updateLessonAudioStatus("Caption " + (lessonIndex + 1) + " selected while paused. Press Resume to hear it.");
   } else {
     lessonVoiceState = "stopped";
     updateLessonAudioButtons();
-    updateLessonAudioStatus("Caption selected. Press Play lesson to hear this caption.");
+    updateLessonAudioStatus("Caption " + (lessonIndex + 1) + " selected. Press Play lesson to hear it.");
   }
 }
+
 document.getElementById("lessonPrevious").addEventListener("click",()=>navigateLessonCaption(-1));
 document.getElementById("lessonNext").addEventListener("click",()=>navigateLessonCaption(1));
+
 document.getElementById("schoolMedium").addEventListener("change", updateLanguageHint);
 document.getElementById("preferredLanguage").addEventListener("change",()=>{
   stopLessonVoice(false);
   lessonIndex = 0;
   renderLessonCaption();
+  updateLessonAudioButtons();
   updateLanguageHint();
 });
-function updateLanguageHint(){
+
+// Stop speech if the user switches apps/tabs or leaves the page.
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && lessonVoiceState === "playing") pauseLessonVoice();
+});
+window.addEventListener("pagehide",()=>{
+  if(lessonVoiceState !== "stopped") stopLessonVoice(false);
+});
+
+  function updateLanguageHint(){
   const school = document.getElementById("schoolMedium").value;
   const pref = getLessonLanguage();
   const labels = {english:"English",hinglish:"Hinglish",hindi:"Hindi"};
