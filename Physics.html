@@ -572,17 +572,29 @@ function startLessonVoice(){
 
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
-  resumeCharIndex = currentSpeechCharIndex;
-  cancelCurrentUtterance();
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.pause();
+  }
+
   lessonVoiceState = "paused";
-  renderLessonCaption();
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Paused at caption " + (lessonIndex + 1) + ", phrase " + (subPhraseIndex + 1) + ". Resume continues from this phrase, or the reported word position if available.");
+  updateLessonAudioStatus(
+    "Paused. Press Resume to continue from the current speech position."
+  );
 }
 
 function resumeLessonVoice(){
   if(lessonVoiceState !== "paused") return;
-  speakLessonSegment();
+
+  lessonVoiceState = "playing";
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.resume();
+  }
+
+  updateLessonAudioButtons();
+  updateLessonAudioStatus("Resuming teacher narration...");
 }
 
 function navigateLessonCaption(direction){
