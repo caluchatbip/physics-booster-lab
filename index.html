@@ -47,7 +47,6 @@ input[type=number],input[type=search],select{width:100%;padding:11px;border:1px 
 footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
 @media(max-width:380px){.modes{grid-template-columns:1fr}header{padding:13px}.panel{padding:15px}}
 </style>
-
 <style>
 .lesson-tools{margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(5,15,30,.42)}
 .lesson-tools-grid{display:grid;grid-template-columns:1fr;gap:10px}
@@ -61,15 +60,13 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
 .lesson-step{padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(5,15,30,.28)}
 @media(min-width:680px){.lesson-tools-grid{grid-template-columns:1fr 1fr}}
 </style>
-
 </head>
 <body>
-<header><div class="brand">PHYSICS <span>BOOSTER LAB</span></div><div class="tag">ENGINE 0.3</div></header>
+<header><div class="brand">PHYSICS <span>BOOSTER LAB</span></div><div class="tag">ENGINE 0.5</div></header>
 <main>
   <div class="tag">CLASS XII / PHYSICS</div>
   <h1>Understand the concept.<br>Prove what you know.</h1>
   <p>Choose a learning path. Select a chapter before opening a lesson or test.</p>
-
   <section id="home">
     <div class="panel">
       <div class="tag">LEARNING MODES</div><h2>What do you want to do?</h2>
@@ -81,26 +78,22 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       </div>
     </div>
   </section>
-
   <section id="learnChapters" class="panel" hidden>
     <div class="tag">MODE 01 · LEARN LESSON</div><h2>Which chapter do you want to study?</h2>
     <p>Choose a chapter to see its topics. Only Ohm's Law is currently implemented as a lesson.</p>
     <div id="chapterLearnList" class="topic-list"></div>
     <div class="actions"><button onclick="goHome()">Back to home</button></div>
   </section>
-
   <section id="learnTopics" class="panel" hidden>
     <div class="tag">MODE 01 · TOPIC SELECTION</div><h2 id="learnTopicHeading">Which topic do you want to start?</h2>
     <label for="topicSearch">Search topics</label><input id="topicSearch" type="search" placeholder="Type a topic name...">
     <div id="topicList" class="topic-list"></div>
     <div class="actions"><button onclick="showOnly('learnChapters')">← Choose another chapter</button><button onclick="goHome()">Back to home</button></div>
   </section>
-
   <section id="lesson" class="panel" hidden>
     <div class="tag">MODE 01 · LEARN LESSON</div><p id="lessonBreadcrumb" class="small">Current Electricity / Ohm's Law</p>
     <h2>Ohm's Law</h2>
     <p>We will first understand what happens in a circuit, then connect the observation to the formula. You can listen, pause, resume, or move through the captions yourself.</p>
-
     <div class="lesson-tools">
       <h3>Choose your learning language</h3>
       <p class="small">First choose your school's medium. Then choose the language that helps you understand best. This setting changes the lesson explanation and narration, not your school's official exam language.</p>
@@ -123,7 +116,6 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       </div>
       <p id="languageHint" class="small">English-medium lesson with English explanation.</p>
     </div>
-
     <div class="caption-card" aria-live="polite">
       <div id="captionLabel" class="caption-label">Teacher captions · 1 of 7</div>
       <div id="lessonCaption" class="caption-line">Welcome! Today we will discover how voltage, resistance and current are connected.</div>
@@ -131,12 +123,11 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <div class="actions">
       <button class="primary" id="lessonPlay">▶ Play lesson</button>
       <button id="lessonPause" disabled>Ⅱ Pause</button>
-      <button id="lessonStop">■ Stop</button>
-      <button id="lessonPrevious">← Previous caption</button>
+      <button id="lessonStop" disabled>■ Stop</button>
+      <button id="lessonPrevious" disabled>← Previous caption</button>
       <button id="lessonNext">Next caption →</button>
     </div>
     <p id="lessonAudioStatus" class="audio-status" role="status">Ready. Tap Play lesson to begin.</p>
-
     <h3>Understand the idea</h3>
     <div id="lessonExplanation">
       <div class="lesson-steps">
@@ -153,7 +144,6 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       <div><strong>Rearranged</strong><p>I = V/R</p></div>
     </div>
     <div class="readout"><strong class="big">Key idea</strong><p>If resistance stays constant, doubling voltage doubles current. If voltage stays constant, doubling resistance halves current.</p></div>
-
     <div class="lesson-step">
       <h3>Now practise yourself</h3>
       <p>A 12 V battery is connected to a 4 Ω resistor. Before using the simulator, calculate the current and say why you divided instead of multiplied.</p>
@@ -162,13 +152,11 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     </div>
     <div class="actions"><button onclick="showOnly('learnTopics')">Choose another topic</button><button onclick="goHome()">Back to home</button></div>
   </section>
-
   <section id="testChapters" class="panel" hidden>
     <div class="tag">MODE 02 · TAKE TEST</div><h2>Select a chapter to test yourself</h2>
     <div id="chapterTestList" class="topic-list"></div>
     <div class="actions"><button onclick="goHome()">Back to home</button></div>
   </section>
-
   <section id="testSetup" class="panel" hidden>
     <div class="tag">MODE 02 · TEST SETUP</div><h2 id="testSetupHeading">Current Electricity</h2>
     <p>Choose how you want to test yourself.</p>
@@ -190,7 +178,6 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     </div>
     <div class="actions"><button onclick="showOnly('testChapters')">← Choose another chapter</button><button onclick="goHome()">Back to home</button></div>
   </section>
-
   <section id="test" class="panel" hidden>
     <div class="tag">MODE 02 · TIMED TEST</div>
     <div class="meta-row"><span id="testProgress" class="small muted">Question 1 of 1</span><span id="timer" class="timer">00:10</span></div>
@@ -200,7 +187,6 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <div id="testFeedback" class="feedback" role="status" aria-live="polite" hidden></div>
     <div class="actions"><button id="nextQuestionBtn" class="primary" onclick="nextQuestion()" hidden>Next question →</button><button onclick="endTestEarly()">Finish test now</button></div>
   </section>
-
   <section id="testResults" class="panel" hidden>
     <div class="tag">MODE 02 · TEST RESULTS</div><h2>Test complete</h2>
     <div class="readout"><div class="tag">TOTAL SCORE</div><strong class="big" id="finalScore">0 points</strong><p id="resultSummary"></p></div>
@@ -214,8 +200,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <p class="small muted">Prototype note: score and rewards are stored only during this page session. They are not secure, account-based or tamper-proof.</p>
     <div class="actions"><button class="primary" onclick="startTest()">Take another test</button><button onclick="goHome()">Back to home</button></div>
   </section>
-
-  <section id="experiment" class="panel" hidden>
+    <section id="experiment" class="panel" hidden>
     <div class="tag">MODE 03 · EXPERIMENT IT</div><h2>Live Ohm's Law Lab</h2><p>Move the controls. Watch how current responds to voltage and resistance.</p>
     <div class="readout"><div class="tag">SIMULATED CIRCUIT CURRENT</div><strong class="big" id="currentValue">2.00 A</strong><p id="calculation">I = 6 V / 3 Ω</p></div>
     <div class="panel"><label for="voltage">Voltage: <strong id="voltageLabel">6 V</strong></label><input id="voltage" type="range" min="0" max="12" step="1" value="6"><label for="resistance">Resistance: <strong id="resistanceLabel">3 Ω</strong></label><input id="resistance" type="range" min="1" max="12" step="1" value="3"></div>
@@ -223,7 +208,6 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <div id="experimentInsight" class="feedback">Adjust a control to explore the relationship.</div>
     <div class="actions"><button onclick="resetExperiment()">Reset experiment</button><button onclick="startTestForCurrentTopic()">Test what you learned →</button><button onclick="goHome()">Back to home</button></div>
   </section>
-
   <section id="builder" class="panel" hidden>
     <div class="tag">MODE 04 · BUILD IT</div><h2>Build a simple circuit</h2><p>Select components and close the switch to test the circuit.</p>
     <label for="battery">Battery voltage</label><select id="battery"><option value="3">3 V battery</option><option value="6" selected>6 V battery</option><option value="9">9 V battery</option><option value="12">12 V battery</option></select>
@@ -234,8 +218,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
   </section>
 </main>
-<footer>Physics Booster Lab · Prototype v0.3<br>Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
-
+<footer>Physics Booster Lab · Prototype v0.5<br>Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
 <script>
 const chapters = [
  {id:1,name:"Electric Charges and Fields",topics:["Electric charge","Coulomb's law","Electric field","Electric field lines","Electric dipole","Electric flux","Gauss's law"]},
@@ -304,12 +287,11 @@ function updateExperiment(){const v=Number(document.getElementById("voltage").va
 document.getElementById("voltage").addEventListener("input",updateExperiment);document.getElementById("resistance").addEventListener("input",updateExperiment);
 function resetExperiment(){document.getElementById("voltage").value=6;document.getElementById("resistance").value=3;updateExperiment();}
 let switchClosed=false;
-  function openBuilder(){stopTimer();showOnly("builder");switchClosed=false;updateCircuit();}
+function openBuilder(){stopTimer();showOnly("builder");switchClosed=false;updateCircuit();}
 function toggleSwitch(){switchClosed=!switchClosed;updateCircuit();}
 function updateCircuit(){const v=Number(document.getElementById("battery").value),r=Number(document.getElementById("resistorSelect").value),i=switchClosed?v/r:0;document.getElementById("switchBtn").textContent=switchClosed?"Open switch":"Close switch";document.getElementById("switchLabel").textContent=switchClosed?"CLOSED":"OPEN";document.getElementById("switchWire").setAttribute("d",switchClosed?"M105 35 H165":"M105 35 L150 35");document.getElementById("switchWire").setAttribute("stroke",switchClosed?"#86efac":"#fbbf24");document.getElementById("circuitStatus").textContent=switchClosed?"Circuit closed":"Circuit open";document.getElementById("circuitResult").textContent=switchClosed?v+" V / "+r+" Ω = "+i.toFixed(2)+" A. The idealized circuit is complete.":"The open switch interrupts the circuit. Current is zero.";document.getElementById("circuitCurrent").textContent="I = "+i.toFixed(2)+" A";}
 document.getElementById("battery").addEventListener("change",updateCircuit);document.getElementById("resistorSelect").addEventListener("change",updateCircuit);
-
-// Lesson narration: segment-based speech with real pause/resume and previous/next controls.
+// Lesson narration: segment-based speech with reliable phrase/boundary pause-resume and previous/next controls.
 const lessonScripts = {
   english: [
     "Welcome to Physics Booster Lab. Today we will understand Ohm's law by looking at what happens inside a simple circuit.",
@@ -344,9 +326,25 @@ let lessonVoiceState = "stopped";
 let utteranceToken = 0;
 let currentUtterance = null;
 let speakTimerId = null;
+let subPhraseIndex = 0;
+let resumeCharIndex = 0;
+let currentSpeechCharIndex = 0;
 
 function getLessonLanguage(){ return document.getElementById("preferredLanguage").value; }
 function currentLessonSegments(){ return lessonScripts[getLessonLanguage()] || lessonScripts.english; }
+
+// Split speech into short phrases. The full caption remains visible on screen.
+function splitIntoSubPhrases(text){
+  const parts = String(text || "").match(/[^,;:.!?]+[,;:.!?]*/g);
+  const cleaned = parts ? parts.map(part => part.trim()).filter(Boolean) : [];
+  return cleaned.length ? cleaned : [String(text || "").trim()].filter(Boolean);
+}
+
+function resetSpeechProgress(){
+  subPhraseIndex = 0;
+  resumeCharIndex = 0;
+  currentSpeechCharIndex = 0;
+}
 
 function renderLessonCaption(){
   const segments = currentLessonSegments();
@@ -367,7 +365,6 @@ function updateLessonAudioButtons(){
   const prevBtn = document.getElementById("lessonPrevious");
   const nextBtn = document.getElementById("lessonNext");
   const total = currentLessonSegments().length;
-
   if(lessonVoiceState === "playing"){
     playBtn.textContent = "▶ Playing...";
     playBtn.disabled = true;
@@ -385,21 +382,20 @@ function updateLessonAudioButtons(){
     playBtn.disabled = false;
     pauseBtn.textContent = "Ⅱ Pause";
     pauseBtn.disabled = true;
-    stopBtn.disabled = (lessonIndex === 0);
+    stopBtn.disabled = (lessonIndex === 0 && subPhraseIndex === 0 && resumeCharIndex === 0);
   }
-
   prevBtn.disabled = lessonIndex <= 0;
   nextBtn.disabled = lessonIndex >= total - 1;
 }
 
 function cancelCurrentUtterance(){
-  // Invalidate old callbacks and cancel any delayed speech request first.
   utteranceToken++;
   if(speakTimerId !== null){
     clearTimeout(speakTimerId);
     speakTimerId = null;
   }
   if(currentUtterance){
+    currentUtterance.onboundary = null;
     currentUtterance.onend = null;
     currentUtterance.onerror = null;
     currentUtterance = null;
@@ -408,23 +404,23 @@ function cancelCurrentUtterance(){
     try { window.speechSynthesis.cancel(); } catch(e) {}
   }
 }
-function stopLessonVoice(resetCaption){
+
+  function stopLessonVoice(resetCaption){
   cancelCurrentUtterance();
   lessonVoiceState = "stopped";
+  resetSpeechProgress();
   if(resetCaption) lessonIndex = 0;
   renderLessonCaption();
   updateLessonAudioButtons();
   updateLessonAudioStatus(resetCaption
     ? "Stopped. Press Play lesson to restart from the beginning."
-    : "Voice stopped. Captions remain available.");
+    : "Voice stopped. The selected caption is preserved; Play starts it from the beginning.");
 }
 
 function selectBestVoice(targetLang){
-  if(!("speechSynthesis" in window) ||
-     typeof window.speechSynthesis.getVoices !== "function") return null;
+  if(!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
   const voices = window.speechSynthesis.getVoices();
   if(!voices || !voices.length) return null;
-
   const target = targetLang.toLowerCase().replace("_", "-");
   const prefix = target.split("-")[0];
   return voices.find(v => v.lang && v.lang.toLowerCase().replace("_", "-") === target)
@@ -432,69 +428,112 @@ function selectBestVoice(targetLang){
     || null;
 }
 
+if("speechSynthesis" in window && "onvoiceschanged" in window.speechSynthesis){
+  window.speechSynthesis.addEventListener("voiceschanged", () => {});
+}
+
+// Snap character offset back to the start of the active word so slicing never cuts a word in half.
+function normalizeWordBoundaryOffset(phraseText, rawOffset){
+  let idx = Math.max(0, Math.min(rawOffset, phraseText.length));
+  while(idx > 0 && !/\s/.test(phraseText.charAt(idx - 1))){
+    idx--;
+  }
+  return idx;
+}
+
 function speakLessonSegment(){
   const segments = currentLessonSegments();
-
   if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
     lessonVoiceState = "stopped";
     updateLessonAudioButtons();
     updateLessonAudioStatus("Voice is not supported in this browser. Captions and explanations are still available.");
     return;
   }
-
   if(lessonIndex >= segments.length){
     lessonIndex = segments.length - 1;
+    resetSpeechProgress();
     lessonVoiceState = "stopped";
     renderLessonCaption();
     updateLessonAudioButtons();
     updateLessonAudioStatus("Lesson complete. Press Play lesson to replay.");
     return;
   }
-
-  // Cancel old speech and wait briefly before speaking, reducing Android TTS queue races.
   cancelCurrentUtterance();
   const myToken = utteranceToken;
   renderLessonCaption();
   lessonVoiceState = "playing";
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Teacher is speaking. Pause holds the current caption; Resume replays that caption from its start.");
-
+  updateLessonAudioStatus("Teacher is speaking. Pause saves the current phrase and, when supported, the word position.");
   speakTimerId = setTimeout(() => {
     speakTimerId = null;
     if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
-
     const activeSegments = currentLessonSegments();
-    const textToSpeak = activeSegments[lessonIndex];
-    if(!textToSpeak) return;
-
+    const fullCaption = activeSegments[lessonIndex] || "";
+    const phrases = splitIntoSubPhrases(fullCaption);
+    if(subPhraseIndex >= phrases.length) resetSpeechProgress();
+    const phrase = phrases[subPhraseIndex] || "";
+    const startAt = normalizeWordBoundaryOffset(phrase, resumeCharIndex);
+    const textToSpeak = phrase.slice(startAt).trim();
+    if(!textToSpeak){
+      if(subPhraseIndex < phrases.length - 1){
+        subPhraseIndex++;
+        resumeCharIndex = 0;
+        currentSpeechCharIndex = 0;
+        speakLessonSegment();
+      } else if(lessonIndex < activeSegments.length - 1){
+        lessonIndex++;
+        resetSpeechProgress();
+        renderLessonCaption();
+        speakLessonSegment();
+      } else {
+        resetSpeechProgress();
+        lessonVoiceState = "stopped";
+        renderLessonCaption();
+        updateLessonAudioButtons();
+        updateLessonAudioStatus("Lesson complete. Press Play lesson to replay, or use Previous/Next caption.");
+      }
+      return;
+    }
+    currentSpeechCharIndex = startAt;
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     currentUtterance = utterance;
-
+    // Best-effort word tracking. When Android voices omit onboundary, subPhraseIndex still preserves clause progress.
+    utterance.onboundary = (event) => {
+      if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
+      if(event && typeof event.charIndex === "number"){
+        currentSpeechCharIndex = startAt + event.charIndex;
+      }
+    };
     const language = getLessonLanguage();
-    // Existing Hindi script is Romanized, so prefer an English-India voice for Hinglish/Roman text.
     const targetLang = language === "hindi" ? "hi-IN" : "en-IN";
     utterance.lang = targetLang;
     const matchedVoice = selectBestVoice(targetLang) || selectBestVoice("en-IN");
     if(matchedVoice) utterance.voice = matchedVoice;
     utterance.rate = 0.88;
     utterance.pitch = 1;
-
     utterance.onend = () => {
       if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
       currentUtterance = null;
-      const currentSegments = currentLessonSegments();
-      if(lessonIndex < currentSegments.length - 1){
+      resumeCharIndex = 0;
+      currentSpeechCharIndex = 0;
+      const latestSegments = currentLessonSegments();
+      const latestPhrases = splitIntoSubPhrases(latestSegments[lessonIndex] || "");
+      if(subPhraseIndex < latestPhrases.length - 1){
+        subPhraseIndex++;
+        speakLessonSegment();
+      } else if(lessonIndex < latestSegments.length - 1){
         lessonIndex++;
+        resetSpeechProgress();
         renderLessonCaption();
         speakLessonSegment();
       } else {
+        resetSpeechProgress();
         lessonVoiceState = "stopped";
         renderLessonCaption();
         updateLessonAudioButtons();
         updateLessonAudioStatus("Lesson complete. Press Play lesson to replay, or use Previous/Next caption.");
       }
     };
-
     utterance.onerror = (event) => {
       if(myToken !== utteranceToken) return;
       currentUtterance = null;
@@ -503,11 +542,10 @@ function speakLessonSegment(){
       lessonVoiceState = "stopped";
       renderLessonCaption();
       updateLessonAudioButtons();
-      updateLessonAudioStatus("Voice stopped unexpectedly. Press Play lesson to retry this caption; the text remains visible.");
+      updateLessonAudioStatus("Voice stopped unexpectedly. Press Play lesson to retry this phrase; captions remain visible.");
     };
-
     try {
-     if(window.speechSynthesis.paused){
+      if(window.speechSynthesis.paused){
         window.speechSynthesis.resume();
       }
       window.speechSynthesis.speak(utterance);
@@ -515,30 +553,36 @@ function speakLessonSegment(){
       if(myToken !== utteranceToken) return;
       currentUtterance = null;
       lessonVoiceState = "stopped";
-      renderLessonCaption();
       updateLessonAudioButtons();
-      updateLessonAudioStatus("The browser could not start voice. Press Play lesson to try again or read the captions.");
+      updateLessonAudioStatus("The browser could not start voice. Press Play lesson to try again.");
     }
   }, 60);
 }
 
 function startLessonVoice(){
   const segments = currentLessonSegments();
-  if(lessonIndex >= segments.length - 1 &&
-     lessonVoiceState === "stopped" &&
+  if(lessonIndex >= segments.length - 1 && lessonVoiceState === "stopped" &&
      document.getElementById("lessonAudioStatus").textContent.startsWith("Lesson complete")){
     lessonIndex = 0;
   }
+  resetSpeechProgress();
   speakLessonSegment();
 }
 
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
+  // Save the latest character boundary (if reported by onboundary) alongside subPhraseIndex, then cancel cleanly.
+  resumeCharIndex = currentSpeechCharIndex;
   cancelCurrentUtterance();
   lessonVoiceState = "paused";
   renderLessonCaption();
   updateLessonAudioButtons();
-  updateLessonAudioStatus("Paused at caption " + (lessonIndex + 1) + ". Press Resume to hear this caption from its start.");
+  const phrases = splitIntoSubPhrases(currentLessonSegments()[lessonIndex] || "");
+  updateLessonAudioStatus(
+    "Paused at caption " + (lessonIndex + 1) +
+    (phrases.length > 1 ? " (phrase " + (subPhraseIndex + 1) + " of " + phrases.length + ")" : "") +
+    ". Press Resume to continue from here."
+  );
 }
 
 function resumeLessonVoice(){
@@ -546,30 +590,16 @@ function resumeLessonVoice(){
   speakLessonSegment();
 }
 
-document.getElementById("lessonPlay").addEventListener("click",()=>{
-  if(lessonVoiceState === "paused"){ resumeLessonVoice(); return; }
-  if(lessonVoiceState === "playing") return;
-  startLessonVoice();
-});
-
-document.getElementById("lessonPause").addEventListener("click",()=>{
-  if(lessonVoiceState === "playing") pauseLessonVoice();
-  else if(lessonVoiceState === "paused") resumeLessonVoice();
-});
-
-document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(false));
-
 function navigateLessonCaption(direction){
   const segments = currentLessonSegments();
   const targetIndex = Math.max(0, Math.min(segments.length - 1, lessonIndex + direction));
   if(targetIndex === lessonIndex) return;
-
   const wasPlaying = lessonVoiceState === "playing";
   const wasPaused = lessonVoiceState === "paused";
   cancelCurrentUtterance();
+  resetSpeechProgress();
   lessonIndex = targetIndex;
   renderLessonCaption();
-
   if(wasPlaying){
     speakLessonSegment();
   } else if(wasPaused){
@@ -583,9 +613,19 @@ function navigateLessonCaption(direction){
   }
 }
 
+document.getElementById("lessonPlay").addEventListener("click",()=>{
+  if(lessonVoiceState === "paused"){ resumeLessonVoice(); return; }
+  if(lessonVoiceState === "playing") return;
+  startLessonVoice();
+});
+document.getElementById("lessonPause").addEventListener("click",()=>{
+  if(lessonVoiceState === "playing") pauseLessonVoice();
+  else if(lessonVoiceState === "paused") resumeLessonVoice();
+});
+// Stop preserves the selected caption; Play starts that caption from its beginning.
+document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(false));
 document.getElementById("lessonPrevious").addEventListener("click",()=>navigateLessonCaption(-1));
 document.getElementById("lessonNext").addEventListener("click",()=>navigateLessonCaption(1));
-
 document.getElementById("schoolMedium").addEventListener("change", updateLanguageHint);
 document.getElementById("preferredLanguage").addEventListener("change",()=>{
   stopLessonVoice(false);
@@ -594,16 +634,13 @@ document.getElementById("preferredLanguage").addEventListener("change",()=>{
   updateLessonAudioButtons();
   updateLanguageHint();
 });
-
-// Stop speech if the user switches apps/tabs or leaves the page.
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden && lessonVoiceState === "playing") pauseLessonVoice();
 });
 window.addEventListener("pagehide",()=>{
   if(lessonVoiceState !== "stopped") stopLessonVoice(false);
 });
-
-  function updateLanguageHint(){
+function updateLanguageHint(){
   const school = document.getElementById("schoolMedium").value;
   const pref = getLessonLanguage();
   const labels = {english:"English",hinglish:"Hinglish",hindi:"Hindi"};
@@ -614,8 +651,6 @@ window.addEventListener("pagehide",()=>{
 renderLessonCaption();
 updateLessonAudioButtons();
 updateLanguageHint();
-
-
 showOnly("home");updateExperiment();updateCircuit();
 </script>
 </body>
