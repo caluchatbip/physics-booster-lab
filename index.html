@@ -73,6 +73,21 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
 .svg-focus{stroke:#67e8f9!important;stroke-width:4px!important;animation:pulseCyan 1.4s infinite}
 @media(min-width:680px){.lesson-tools-grid{grid-template-columns:1fr 1fr}}
 </style>
+
+<style>
+#understandAnythingBtn{position:fixed;right:14px;bottom:16px;z-index:900;background:var(--cyan);color:#07111e;border:0;border-radius:999px;box-shadow:0 5px 22px #0008;font-weight:800;padding:13px 16px;max-width:calc(100vw - 28px)}
+#understandAnythingPanel{position:fixed;inset:0;z-index:1000;background:#020611d9;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+#understandAnythingPanel[hidden]{display:none!important}
+#understandAnythingCard{width:min(100%,650px);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 15px 55px #000a}
+#understandAnythingCard h2{margin-top:0}
+#understandQuestion{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0b1322;color:var(--text);font:inherit}
+.understand-suggestions{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.understand-suggestions button{font-size:12px;padding:8px 10px}
+#understandAnswer{white-space:pre-wrap;background:#0b1322;border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:12px;color:var(--text);min-height:54px}
+#understandContext{font-size:12px;color:var(--muted);margin:5px 0 10px}
+@media(min-width:680px){#understandAnythingPanel{align-items:center}#understandAnythingCard{max-height:82vh}}
+</style>
+
 </head>
 <body>
 <header>
@@ -208,7 +223,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
           </select>
         </div>
         <div>
-          <label for="preferredLanguage">Preferred explanation language</label>
+                    <label for="preferredLanguage">Preferred explanation language</label>
           <select id="preferredLanguage">
             <option value="english" selected>English</option>
             <option value="hinglish">Hinglish</option>
@@ -396,14 +411,47 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       <text x="232" y="18" fill="#67e8f9" font-size="9" text-anchor="middle">R2</text>
       <text x="160" y="152" fill="#96a8c2" font-size="10" text-anchor="middle">VIRTUAL SCHEMATIC · SIMULATION ONLY</text>
  </svg>
-     <button id="switchBtn" class="primary" style="width:100%" onclick="toggleSwitch()">Close switch</button>
+    <button id="switchBtn" class="primary" style="width:100%" onclick="toggleSwitch()">Close switch</button>
     <div class="readout" style="margin-top:14px"><div class="tag">VIRTUAL CIRCUIT STATUS</div><h3 id="circuitStatus">Circuit open</h3><p id="circuitResult">The open switch interrupts the circuit. Current is zero.</p><div class="formula" id="circuitCurrent">I = 0 A</div></div>
     <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="resetBuilderTask()">Reset build task</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
   </section>
 </main>
 <footer>Physics Booster Lab · Prototype v0.6<br>Virtual simulation only — no physical circuit is tested. Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
+
+<button id="understandAnythingBtn" type="button" onclick="openUnderstandAnything()">🔎 Understand Anything?</button>
+<section id="understandAnythingPanel" role="dialog" aria-modal="true" aria-labelledby="understandTitle" hidden>
+  <div id="understandAnythingCard">
+    <div class="meta-row" style="align-items:center">
+      <div>
+        <div class="tag">QUICK PHYSICS HELP</div>
+        <h2 id="understandTitle">Understand Anything?</h2>
+      </div>
+      <button type="button" onclick="closeUnderstandAnything()" aria-label="Close help">✕ Close</button>
+    </div>
+    <p id="understandContext">Ask about a word, formula, unit or instruction. This built-in version works offline for common Physics terms.</p>
+    <form id="understandForm">
+      <label for="understandQuestion">What do you want explained?</label>
+      <input id="understandQuestion" type="search" placeholder="e.g. What is resistance?" autocomplete="off">
+      <div class="understand-suggestions">
+        <button type="button" onclick="askUnderstandSuggestion('What is resistance?')">Resistance</button>
+        <button type="button" onclick="askUnderstandSuggestion('What does 12 V mean?')">12 V</button>
+        <button type="button" onclick="askUnderstandSuggestion('What is current?')">Current</button>
+        <button type="button" onclick="askUnderstandSuggestion('What is a resistor?')">Resistor</button>
+        <button type="button" onclick="askUnderstandSuggestion('Explain Ohm’s law')">Ohm’s law</button>
+      </div>
+      <button class="primary" type="submit" style="width:100%">Explain simply</button>
+    </form>
+    <div id="understandAnswer" role="status" aria-live="polite">Choose a term above or type your own question, then tap “Explain simply”.</div>
+    <div class="btn-row">
+      <button type="button" onclick="speakUnderstandAnswer()">🔊 Read answer aloud</button>
+      <button type="button" onclick="stopGuideSpeechOnly()">■ Stop voice</button>
+    </div>
+    <p class="small muted">Study support only. This first version uses a built-in glossary, not a live AI service. If a term is not in the glossary, it will tell you rather than pretend it knows.</p>
+  </div>
+</section>
+
 <script>
-const chapters = [
+  const chapters = [
  {id:1,name:"Electric Charges and Fields",topics:["Electric charge","Coulomb's law","Electric field","Electric field lines","Electric dipole","Electric flux","Gauss's law"]},
  {id:2,name:"Electrostatic Potential and Capacitance",topics:["Electric potential","Potential difference","Equipotential surfaces","Potential energy","Capacitance","Capacitors in series and parallel","Energy stored in a capacitor"]},
  {id:3,name:"Current Electricity",topics:["Electric current","Ohm's Law","Resistance and resistivity","Drift velocity","Electrical power","Cells and internal resistance","Kirchhoff's laws","Wheatstone bridge and meter bridge","Potentiometer"]},
@@ -598,7 +646,7 @@ function showOnly(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function goHome(){stopTimer();showOnly("home");}
-  function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
+function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
 let selectedChapter=chapters[2], selectedTopic="Ohm's Law";
 function startLearn(){makeChapterButtons("chapterLearnList",chooseLearnChapter);showOnly("learnChapters");}
 function chooseLearnChapter(ch){selectedChapter=ch;document.getElementById("learnTopicHeading").textContent="Chapter "+ch.id+": "+ch.name+" · Choose a topic";document.getElementById("topicSearch").value="";renderTopicList("");showOnly("learnTopics");}
@@ -709,7 +757,7 @@ function validateExperimentAction(v, r){
     } else {
       msgEl.innerHTML = '<strong>Current goal (Step 3):</strong> Voltage is 12 V. Move the Resistance slider to <strong>6 Ω</strong> (currently ' + r + ' Ω).';
     }
-  } else {
+      } else {
     msgEl.innerHTML = '<span class="good">✓ ' + pack.expAllDone + '</span> Feel free to explore any slider values or reset the experiment.';
   }
   renderExperimentSteps();
@@ -800,7 +848,7 @@ function renderBuilderSteps(){
     const badgeText = isDone ? "✓ Done" : (isActive ? "Current step" : "Step " + (idx + 1));
     li.innerHTML = '<span>' + stepText + '</span><span class="step-badge">' + badgeText + '</span>';
     list.appendChild(li);
-    });
+  });
 
   // Visual highlights on the schematic for the active step
   const batLines = document.getElementById("builderBatteryLines");
@@ -953,7 +1001,7 @@ function splitIntoSubPhrases(text){
   return cleaned.length ? cleaned : [String(text || "").trim()].filter(Boolean);
 }
 
-function resetSpeechProgress(){
+ function resetSpeechProgress(){
   subPhraseIndex = 0;
   resumeCharIndex = 0;
   currentSpeechCharIndex = 0;
@@ -1012,7 +1060,7 @@ function cancelCurrentUtterance(){
   if(speakTimerId !== null){
     clearTimeout(speakTimerId);
     speakTimerId = null;
-    }
+  }
   if(currentUtterance){
     currentUtterance.onboundary = null;
     currentUtterance.onend = null;
@@ -1297,7 +1345,7 @@ function startLessonVoice(){
     resetSpeechProgress();
     speakLessonSegment();
   });
-  }
+}
 
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
@@ -1505,6 +1553,131 @@ window.addEventListener("pagehide",()=>{
   if(lessonVoiceState !== "stopped") stopLessonVoice(false);
   stopGuideSpeechOnly();
 });
+
+
+// ============================================================================
+// UNDERSTAND ANYTHING: offline glossary + current activity context
+// ============================================================================
+const physicsQuickGlossary = [
+  {keys:["resistance","resistor","ohm","ohms","ω","Ω"], title:"Resistance and resistor",
+   meaning:"Resistance is the opposition a material offers to electric current. A resistor is a circuit component designed to provide a chosen resistance.",
+   example:"A 4 Ω resistor has a resistance of 4 ohms. At 12 V across it, the current is I = V/R = 12/4 = 3 A.",
+   exam:"Resistance is measured in ohms (Ω). From Ohm’s law, R = V/I."},
+  {keys:["current","electric current","ampere","amperes","amps","a"], title:"Electric current",
+   meaning:"Electric current is the rate at which electric charge flows through a cross-section of a conductor.",
+   example:"If 2 coulombs of charge pass a point in 1 second, the current is 2 A.",
+   exam:"I = Q/t. SI unit: ampere (A). In an ohmic circuit, I = V/R."},
+  {keys:["voltage","volt","volts","potential difference","12 v","6 v","9 v","3 v"], title:"Voltage / potential difference",
+   meaning:"Voltage is the energy transferred per unit charge between two points. It tells you how much energy each coulomb of charge gains or loses.",
+   example:"12 V means 12 joules of energy transferred per coulomb of charge between the two points.",
+   exam:"V = W/Q. SI unit: volt (V). In Ohm’s law, V = IR."},
+  {keys:["ohm's law","ohms law","ohm’s law","v=ir","v = ir"], title:"Ohm’s law",
+   meaning:"For an ohmic conductor at constant physical conditions, current is directly proportional to the potential difference across it.",
+   example:"If R = 4 Ω and V = 12 V, then I = V/R = 12/4 = 3 A.",
+   exam:"V = IR, where V is potential difference, I is current and R is resistance."},
+  {keys:["formula","rearrange","rearranging"], title:"Rearranging V = IR",
+   meaning:"Use the version of the formula that puts the quantity you need on its own: V = IR, I = V/R, or R = V/I.",
+   example:"To find current when V = 12 V and R = 4 Ω, use I = V/R = 3 A.",
+   exam:"Write the formula, substitute values with units, then calculate."},
+  {keys:["power","electrical power","watt","watts"], title:"Electrical power",
+   meaning:"Electrical power is the rate at which electrical energy is transferred or converted.",
+   example:"A device operating at 12 V and drawing 2 A has power P = VI = 24 W.",
+   exam:"P = VI. For a resistor, P = I²R = V²/R. SI unit: watt (W)."},
+  {keys:["ammeter","voltmeter"], title:"Ammeter and voltmeter",
+   meaning:"An ammeter measures current and is connected in series. A voltmeter measures potential difference and is connected in parallel across a component.",
+   example:"To measure current through a resistor, place the ammeter in the same current path. To measure voltage across it, connect a voltmeter across its two ends.",
+   exam:"Ideal ammeter: very low resistance. Ideal voltmeter: very high resistance."},
+  {keys:["series","series connection"], title:"Series connection",
+   meaning:"Components are connected one after another in a single path. The same current flows through each component.",
+   example:"For 4 Ω and 2 Ω resistors in series, total resistance is 4 + 2 = 6 Ω.",
+   exam:"For resistors in series: Rtotal = R1 + R2 + …"},
+  {keys:["parallel","parallel connection"], title:"Parallel connection",
+   meaning:"Components are connected across the same two nodes, giving separate branches. Each branch has the same potential difference.",
+   example:"For two resistors in parallel, use 1/Rtotal = 1/R1 + 1/R2.",
+   exam:"The equivalent resistance of ordinary positive resistors in parallel is less than the smallest branch resistance."},
+  {keys:["coulomb","coulomb's law","coulomb’s law"], title:"Coulomb’s law",
+   meaning:"Coulomb’s law describes the electrostatic force between two point charges. The force grows with the product of the charges and decreases with the square of their separation.",
+   example:"If the separation doubles while the charges stay the same, the force becomes one-fourth as large.",
+   exam:"In vacuum, F = (1/(4πε₀)) × |q₁q₂|/r²."},
+  {keys:["electric field","field"], title:"Electric field",
+   meaning:"An electric field describes the electric force that a positive test charge would experience per unit charge at a point.",
+   example:"A positive test charge placed in the field experiences force in the field’s direction.",
+   exam:"E = F/q. SI unit: N/C (also V/m)."},
+  {keys:["potential energy","electric potential"], title:"Electric potential",
+   meaning:"Electric potential at a point is electric potential energy per unit charge. Potential difference tells the energy change per unit charge between two points.",
+   example:"A 5 V potential difference corresponds to 5 joules per coulomb.",
+   exam:"V = U/q for electric potential energy U of a charge q, with the appropriate reference."},
+  {keys:["capacitor","capacitance"], title:"Capacitance",
+   meaning:"Capacitance measures how much electric charge a capacitor stores per unit potential difference.",
+   example:"A capacitor with C = 2 F at 3 V stores Q = CV = 6 C (illustrative values).",
+   exam:"C = Q/V. SI unit: farad (F)."}
+];
+
+function getUnderstandContext(){
+  const visible = sections.find(id => { const el = document.getElementById(id); return el && !el.hidden; }) || "home";
+  const names = {home:"Home",learnChapters:"Choose a lesson chapter",learnTopics:"Choose a lesson topic",lesson:"Learn Lesson",testChapters:"Choose a test chapter",testSetup:"Test setup",test:"Take Test",testResults:"Test results",experiment:"Experiment It",builder:"Build It"};
+  let detail = names[visible] || "Physics Booster Lab";
+  if(visible === "lesson") detail += " · " + (selectedTopic || "Ohm’s Law");
+  if(visible === "test") detail += " · Current Electricity practice question";
+  if(visible === "experiment") detail += " · Ohm’s law virtual lab";
+  if(visible === "builder") detail += " · Virtual circuit";
+  return {visible, text:"Current activity: " + detail + ". Ask about a word, formula, unit or instruction."};
+}
+function openUnderstandAnything(){
+  const panel = document.getElementById("understandAnythingPanel");
+  const ctx = getUnderstandContext();
+  document.getElementById("understandContext").textContent = ctx.text + " Built-in help is available offline.";
+  panel.hidden = false;
+  setTimeout(() => document.getElementById("understandQuestion").focus(), 50);
+}
+function closeUnderstandAnything(){
+  document.getElementById("understandAnythingPanel").hidden = true;
+}
+function askUnderstandSuggestion(q){
+  document.getElementById("understandQuestion").value = q;
+  answerUnderstandQuestion(q);
+}
+function answerUnderstandQuestion(raw){
+  const q = (raw || "").trim();
+  const answer = document.getElementById("understandAnswer");
+  if(!q){answer.textContent = "Type a word or question first, for example: What is resistance?";return;}
+  const normalized = q.toLowerCase().replace(/[?!.,]/g," ").replace(/\s+/g," ").trim();
+  const ctx = getUnderstandContext();
+  let found = null;
+  // Prefer phrase matches, and only use a single-letter unit when explicitly asked about it.
+  found = physicsQuickGlossary.find(item => item.keys.some(k => {
+    const key = k.toLowerCase();
+    if(key.length === 1) return /\\b(a|v)\\b/.test(normalized) && (normalized.includes("unit") || normalized.includes("mean") || normalized.includes("what is"));
+    return normalized.includes(key);
+  }));
+  if(found){
+    answer.textContent = found.title + "\\n\\nMeaning: " + found.meaning + "\\n\\nExample: " + found.example + "\\n\\nExam connection: " + found.exam;
+  } else {
+    answer.textContent = "I don’t have a verified built-in explanation for “" + q + "” yet.\\n\\nTry a shorter term such as resistance, voltage, current, Ohm’s law, power, ammeter, voltmeter, series, parallel, electric field or capacitance.\\n\\nThis version is offline and does not send questions to an AI service. You can still look up the term in your notes or ask a trusted study tool.";
+  }
+  if(ctx.visible === "test"){
+    answer.textContent += "\\n\\nTest note: Use this helper for learning and revision outside a timed test. It does not change or submit your test answer.";
+  }
+}
+document.getElementById("understandForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  answerUnderstandQuestion(document.getElementById("understandQuestion").value);
+});
+document.getElementById("understandAnythingPanel").addEventListener("click", function(e){
+  if(e.target === this) closeUnderstandAnything();
+});
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape") closeUnderstandAnything();
+});
+function speakUnderstandAnswer(){
+  const text = document.getElementById("understandAnswer").textContent;
+  if(!text || !("speechSynthesis" in window)){return;}
+  stopGuideSpeechOnly();
+  const utterance = new SpeechSynthesisUtterance(text);
+  const lang = userPrefs.preferredLanguage;
+  utterance.lang = lang === "hindi" ? "hi-IN" : "en-IN";
+  window.speechSynthesis.speak(utterance);
+}
 
 // Initialize app state
 loadUserPrefs();
