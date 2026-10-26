@@ -58,15 +58,107 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
 .audio-status{color:var(--muted);font-size:.9rem;margin:8px 0}
 .lesson-steps{display:grid;gap:10px;margin:14px 0}
 .lesson-step{padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(5,15,30,.28)}
+.guide-banner{border:1px solid var(--cyan);background:#0c1b2e;border-radius:14px;padding:15px;margin:14px 0}
+.guide-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#0b1322;margin:12px 0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-row button{flex:1 1 auto}
+.step-list{list-style:none;padding:0;margin:12px 0;display:grid;gap:8px}
+.step-item{padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#0b1322;font-size:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.step-item.active{border-color:var(--cyan);background:#102238}
+.step-item.done{border-color:var(--green);background:#0d2324}
+.step-badge{font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:#18253a;color:var(--muted);white-space:nowrap}
+.step-item.active .step-badge{background:var(--cyan);color:#07111e}
+.step-item.done .step-badge{background:var(--green);color:#07111e}
+@keyframes pulseCyan{0%,100%{filter:drop-shadow(0 0 2px #67e8f9)}50%{filter:drop-shadow(0 0 8px #67e8f9)}}
+.svg-focus{stroke:#67e8f9!important;stroke-width:4px!important;animation:pulseCyan 1.4s infinite}
 @media(min-width:680px){.lesson-tools-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<header><div class="brand">PHYSICS <span>BOOSTER LAB</span></div><div class="tag">ENGINE 0.5</div></header>
+<header>
+  <div class="brand">PHYSICS <span>BOOSTER LAB</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button id="openSettingsBtn" type="button" style="padding:7px 11px;font-size:12px" onclick="toggleSettingsPanel()">⚙ Guide &amp; Language</button>
+    <div class="tag">ENGINE 0.6</div>
+  </div>
+</header>
 <main>
-  <div class="tag">CLASS XII / PHYSICS</div>
+<div class="tag">CLASS XII / PHYSICS</div>
   <h1>Understand the concept.<br>Prove what you know.</h1>
   <p>Choose a learning path. Select a chapter before opening a lesson or test.</p>
+
+  <!-- Persistent Guide & Language Status Bar -->
+  <div class="guide-bar" aria-label="Current guide and language status">
+    <span id="globalStatusSummary" class="small">Guide: Ask on visit · Language: English · Medium: English</span>
+    <button type="button" style="padding:6px 10px;font-size:12px" onclick="toggleSettingsPanel()">Change settings</button>
+  </div>
+
+  <!-- Visible Settings Panel (localStorage backed) -->
+  <section id="settingsPanel" class="panel" hidden>
+    <div class="tag">PREFERENCES &amp; ACCESSIBILITY</div>
+    <h2>Guide, Audio &amp; Language Settings</h2>
+    <p class="small">Your preferences are saved on this device. Changing explanation language updates guide text, captions, and voice narration without changing your school's official exam medium.</p>
+    <div class="lesson-tools-grid">
+      <div>
+        <label for="globalSchoolMedium">School exam medium</label>
+        <select id="globalSchoolMedium">
+          <option value="english" selected>English medium</option>
+          <option value="hindi">Hindi medium</option>
+        </select>
+      </div>
+      <div>
+        <label for="globalPreferredLanguage">Preferred explanation language</label>
+        <select id="globalPreferredLanguage">
+          <option value="english" selected>English</option>
+          <option value="hinglish">Hinglish</option>
+          <option value="hindi">Hindi</option>
+        </select>
+      </div>
+      <div>
+        <label for="guideModeSelect">On-screen smart guide</label>
+        <select id="guideModeSelect">
+          <option value="guided">Guide me (step-by-step hints active)</option>
+          <option value="self">I'll explore myself (steps shown, hints on request)</option>
+          <option value="off">Turn off guide permanently</option>
+        </select>
+      </div>
+      <div>
+        <label for="audioPrefSelect">Optional voice narration</label>
+        <select id="audioPrefSelect">
+          <option value="ask">Ask permission before speaking</option>
+          <option value="enabled">Allow optional voice narration</option>
+          <option value="muted">Disable / Mute voice narration</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="primary" type="button" onclick="toggleSettingsPanel(false)">Save &amp; close</button>
+      <button type="button" onclick="resetOnboardingPrompt()">Show welcome tour choice again</button>
+    </div>
+  </section>
+
+  <!-- First-Visit Onboarding Choice Banner -->
+  <section id="onboardingPrompt" class="guide-banner" role="region" aria-label="Guided tour preference" hidden>
+    <div class="tag">SMART ON-SCREEN GUIDE</div>
+    <h3 id="onboardingQuestion" style="margin:6px 0">Would you like a guided tour, or would you prefer to explore by yourself?</h3>
+    <p id="onboardingSubtext" class="small" style="margin:4px 0 10px">You can switch explanation language above or change this choice anytime in ⚙ Guide &amp; Language.</p>
+    <div class="btn-row">
+      <button class="primary" type="button" id="btnChooseGuided" onclick="setOnboardingChoice('guided')">Guide me</button>
+      <button type="button" id="btnChooseSelf" onclick="setOnboardingChoice('self')">I'll do it myself</button>
+      <button type="button" id="btnChooseOff" onclick="setOnboardingChoice('off')">Turn off permanently</button>
+    </div>
+  </section>
+
+<!-- Contextual Home Tour Tip (shown when "Guide me" is active) -->
+  <div id="homeTourBanner" class="caption-card" style="margin-bottom:14px" hidden>
+    <div class="caption-label" id="homeTourLabel">SMART GUIDE · TOUR</div>
+    <div class="caption-line" id="homeTourText">Start with 01 Learn Lesson to understand Ohm's Law, then practise in 03 Experiment It and 04 Build It before taking 02 Timed Test.</div>
+    <div class="btn-row">
+      <button type="button" id="homeTourSpeakBtn" onclick="speakHomeTour()">🔊 Listen to tour</button>
+      <button type="button" onclick="dismissHomeTour()">Dismiss tip</button>
+    </div>
+  </div>
+
   <section id="home">
     <div class="panel">
       <div class="tag">LEARNING MODES</div><h2>What do you want to do?</h2>
@@ -78,22 +170,32 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       </div>
     </div>
   </section>
+
   <section id="learnChapters" class="panel" hidden>
     <div class="tag">MODE 01 · LEARN LESSON</div><h2>Which chapter do you want to study?</h2>
     <p>Choose a chapter to see its topics. Only Ohm's Law is currently implemented as a lesson.</p>
     <div id="chapterLearnList" class="topic-list"></div>
     <div class="actions"><button onclick="goHome()">Back to home</button></div>
   </section>
-  <section id="learnTopics" class="panel" hidden>
+
+<section id="learnTopics" class="panel" hidden>
     <div class="tag">MODE 01 · TOPIC SELECTION</div><h2 id="learnTopicHeading">Which topic do you want to start?</h2>
     <label for="topicSearch">Search topics</label><input id="topicSearch" type="search" placeholder="Type a topic name...">
     <div id="topicList" class="topic-list"></div>
     <div class="actions"><button onclick="showOnly('learnChapters')">← Choose another chapter</button><button onclick="goHome()">Back to home</button></div>
   </section>
+
   <section id="lesson" class="panel" hidden>
     <div class="tag">MODE 01 · LEARN LESSON</div><p id="lessonBreadcrumb" class="small">Current Electricity / Ohm's Law</p>
     <h2>Ohm's Law</h2>
     <p>We will first understand what happens in a circuit, then connect the observation to the formula. You can listen, pause, resume, or move through the captions yourself.</p>
+
+    <!-- On-Screen Lesson Guide Box -->
+    <div id="lessonGuideBox" class="lesson-step" style="border-color:var(--cyan);margin:12px 0">
+      <div class="caption-label" id="lessonGuideHeader">ON-SCREEN LESSON GUIDE</div>
+      <p id="lessonGuideStepsText" class="small" style="margin:6px 0 0">1. Choose your explanation language below. 2. Read each teacher caption or tap Play lesson for optional voice narration. 3. Review the 3 concept steps and test yourself in the simulator.</p>
+    </div>
+
     <div class="lesson-tools">
       <h3>Choose your learning language</h3>
       <p class="small">First choose your school's medium. Then choose the language that helps you understand best. This setting changes the lesson explanation and narration, not your school's official exam language.</p>
@@ -116,7 +218,17 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       </div>
       <p id="languageHint" class="small">English-medium lesson with English explanation.</p>
     </div>
-    <div class="caption-card" aria-live="polite">
+
+    <!-- Optional Audio Permission Prompt (Never Autoplays) -->
+    <div id="audioPermissionBox" class="guide-banner" hidden>
+      <strong id="audioPermTitle">Allow voice narration?</strong>
+      <p id="audioPermDesc" class="small" style="margin:5px 0 10px">We ask before playing audio. You can pause, resume, stop, or mute voice narration at any time.</p>
+      <div class="btn-row">
+        <button class="primary" type="button" id="btnAllowAudio" onclick="handleAudioPermission(true)">Allow &amp; Play</button>
+        <button type="button" id="btnMuteAudio" onclick="handleAudioPermission(false)">Disable audio (read only)</button>
+      </div>
+    </div>
+<div class="caption-card" aria-live="polite">
       <div id="captionLabel" class="caption-label">Teacher captions · 1 of 7</div>
       <div id="lessonCaption" class="caption-line">Welcome! Today we will discover how voltage, resistance and current are connected.</div>
     </div>
@@ -126,8 +238,10 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       <button id="lessonStop" disabled>■ Stop</button>
       <button id="lessonPrevious" disabled>← Previous caption</button>
       <button id="lessonNext">Next caption →</button>
+      <button type="button" id="lessonAudioToggleBtn" onclick="toggleAudioMuteFromLesson()">🔊 Voice: Ask permission</button>
     </div>
     <p id="lessonAudioStatus" class="audio-status" role="status">Ready. Tap Play lesson to begin.</p>
+
     <h3>Understand the idea</h3>
     <div id="lessonExplanation">
       <div class="lesson-steps">
@@ -135,7 +249,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
         <div class="lesson-step"><strong>2. What does resistance do?</strong><p>Collisions and interactions inside a material oppose the drift of charge. For an ohmic conductor at constant physical conditions, more voltage produces proportionally more current; more resistance at the same voltage means less current.</p></div>
         <div class="lesson-step"><strong>3. Connect the observation to the rule</strong><p>Ohm's law describes the relationship: V = IR. To find current, rearrange it to I = V/R. For example, 6 V across 3 Ω gives I = 6/3 = 2 A.</p></div>
       </div>
-    </div>
+          </div>
     <div class="formula">V = IR</div>
     <div class="grid">
       <div><strong>V</strong><p>Potential difference, in volts (V).</p></div>
@@ -152,11 +266,13 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     </div>
     <div class="actions"><button onclick="showOnly('learnTopics')">Choose another topic</button><button onclick="goHome()">Back to home</button></div>
   </section>
+
   <section id="testChapters" class="panel" hidden>
     <div class="tag">MODE 02 · TAKE TEST</div><h2>Select a chapter to test yourself</h2>
     <div id="chapterTestList" class="topic-list"></div>
     <div class="actions"><button onclick="goHome()">Back to home</button></div>
   </section>
+
   <section id="testSetup" class="panel" hidden>
     <div class="tag">MODE 02 · TEST SETUP</div><h2 id="testSetupHeading">Current Electricity</h2>
     <p>Choose how you want to test yourself.</p>
@@ -178,7 +294,9 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     </div>
     <div class="actions"><button onclick="showOnly('testChapters')">← Choose another chapter</button><button onclick="goHome()">Back to home</button></div>
   </section>
-  <section id="test" class="panel" hidden>
+
+
+ <section id="test" class="panel" hidden>
     <div class="tag">MODE 02 · TIMED TEST</div>
     <div class="meta-row"><span id="testProgress" class="small muted">Question 1 of 1</span><span id="timer" class="timer">00:10</span></div>
     <div class="progress" style="margin:12px 0"><div id="testProgressBar"></div></div>
@@ -187,6 +305,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <div id="testFeedback" class="feedback" role="status" aria-live="polite" hidden></div>
     <div class="actions"><button id="nextQuestionBtn" class="primary" onclick="nextQuestion()" hidden>Next question →</button><button onclick="endTestEarly()">Finish test now</button></div>
   </section>
+
   <section id="testResults" class="panel" hidden>
     <div class="tag">MODE 02 · TEST RESULTS</div><h2>Test complete</h2>
     <div class="readout"><div class="tag">TOTAL SCORE</div><strong class="big" id="finalScore">0 points</strong><p id="resultSummary"></p></div>
@@ -200,25 +319,89 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     <p class="small muted">Prototype note: score and rewards are stored only during this page session. They are not secure, account-based or tamper-proof.</p>
     <div class="actions"><button class="primary" onclick="startTest()">Take another test</button><button onclick="goHome()">Back to home</button></div>
   </section>
-    <section id="experiment" class="panel" hidden>
-    <div class="tag">MODE 03 · EXPERIMENT IT</div><h2>Live Ohm's Law Lab</h2><p>Move the controls. Watch how current responds to voltage and resistance.</p>
+
+  <section id="experiment" class="panel" hidden>
+    <div class="tag">MODE 03 · EXPERIMENT IT</div><h2>Live Ohm's Law Lab</h2><p>Move the controls. Watch how current responds to voltage and resistance in this virtual simulation.</p>
+
+    <!-- Always-Visible Numbered Steps for Experiment It -->
+    <div class="lesson-tools">
+      <div class="meta-row">
+        <strong id="expStepsHeading">Step-by-Step Lab Tasks</strong>
+        <button type="button" class="primary" style="padding:7px 12px;font-size:13px" onclick="requestExperimentHelp()">💡 Need help?</button>
+      </div>
+      <ol id="expStepList" class="step-list"></ol>
+      <div id="expValidationMsg" class="feedback small" role="status" aria-live="polite"></div>
+
+      <!-- Persistent Caption Box for Experiment Help -->
+      <div id="expHelpCard" class="caption-card" aria-live="polite" hidden>
+        <div id="expHelpLabel" class="caption-label">STEP 1 HINT · CAPTION</div>
+        <div id="expHelpCaption" class="caption-line"></div>
+        <p id="expHelpAudioStatus" class="audio-status"></p>
+        <div class="btn-row">
+          <button type="button" onclick="requestExperimentHelp(true)">🔊 Replay hint</button>
+          <button type="button" onclick="stopGuideSpeechOnly()">■ Stop voice</button>
+          <button type="button" onclick="dismissExperimentHelp()">Dismiss hint</button>
+        </div>
+      </div>
+    </div>
+
     <div class="readout"><div class="tag">SIMULATED CIRCUIT CURRENT</div><strong class="big" id="currentValue">2.00 A</strong><p id="calculation">I = 6 V / 3 Ω</p></div>
     <div class="panel"><label for="voltage">Voltage: <strong id="voltageLabel">6 V</strong></label><input id="voltage" type="range" min="0" max="12" step="1" value="6"><label for="resistance">Resistance: <strong id="resistanceLabel">3 Ω</strong></label><input id="resistance" type="range" min="1" max="12" step="1" value="3"></div>
-    <svg viewBox="0 0 320 145" role="img" aria-label="Schematic circuit with a battery and resistor"><path d="M45 35 H120 M200 35 H275 V112 H45 V35" stroke="#67e8f9" stroke-width="3" fill="none"/><path d="M120 35 l8 -9 l12 18 l12 -18 l12 18 l12 -18 l12 9" stroke="#fbbf24" stroke-width="3" fill="none"/><path d="M45 61 V86 M34 66 H56 M38 81 H52" stroke="#edf4ff" stroke-width="3" fill="none"/><text x="160" y="17" fill="#96a8c2" font-size="11" text-anchor="middle">RESISTOR</text><text x="160" y="132" fill="#96a8c2" font-size="11" text-anchor="middle">SIMPLIFIED CIRCUIT</text></svg>
+    <svg viewBox="0 0 320 145" role="img" aria-label="Schematic circuit with a battery and resistor"><path d="M45 35 H120 M200 35 H275 V112 H45 V35" stroke="#67e8f9" stroke-width="3" fill="none"/><path id="expResistorSvg" d="M120 35 l8 -9 l12 18 l12 -18 l12 18 l12 -18 l12 9" stroke="#fbbf24" stroke-width="3" fill="none"/><path id="expBatterySvg" d="M45 61 V86 M34 66 H56 M38 81 H52" stroke="#edf4ff" stroke-width="3" fill="none"/><text x="160" y="17" fill="#96a8c2" font-size="11" text-anchor="middle">RESISTOR</text><text x="160" y="132" fill="#96a8c2" font-size="11" text-anchor="middle">SIMPLIFIED VIRTUAL CIRCUIT</text></svg>
     <div id="experimentInsight" class="feedback">Adjust a control to explore the relationship.</div>
     <div class="actions"><button onclick="resetExperiment()">Reset experiment</button><button onclick="startTestForCurrentTopic()">Test what you learned →</button><button onclick="goHome()">Back to home</button></div>
   </section>
+
   <section id="builder" class="panel" hidden>
-    <div class="tag">MODE 04 · BUILD IT</div><h2>Build a simple circuit</h2><p>Select components and close the switch to test the circuit.</p>
-    <label for="battery">Battery voltage</label><select id="battery"><option value="3">3 V battery</option><option value="6" selected>6 V battery</option><option value="9">9 V battery</option><option value="12">12 V battery</option></select>
-    <label for="resistorSelect">Resistor component</label><select id="resistorSelect"><option value="2">2 Ω resistor</option><option value="4" selected>4 Ω resistor</option><option value="6">6 Ω resistor</option><option value="12">12 Ω resistor</option></select>
-    <svg viewBox="0 0 320 160" role="img" aria-label="Virtual battery, switch and resistor circuit"><path d="M45 35 H105 M165 35 H275 V120 H45 V35" stroke="#53647d" stroke-width="3" fill="none"/><path id="switchWire" d="M105 35 L150 35" stroke="#fbbf24" stroke-width="3" fill="none"/><circle cx="105" cy="35" r="4" fill="#edf4ff"/><circle cx="165" cy="35" r="4" fill="#edf4ff"/><rect x="180" y="24" width="48" height="22" rx="3" fill="#18253a" stroke="#67e8f9" stroke-width="2"/><text x="204" y="39" fill="#edf4ff" font-size="10" text-anchor="middle">R</text><path d="M45 60 V95 M34 68 H56 M38 88 H52" stroke="#edf4ff" stroke-width="3"/><text x="45" y="15" fill="#96a8c2" font-size="10" text-anchor="middle">BATTERY</text><text id="switchLabel" x="135" y="18" fill="#fbbf24" font-size="10" text-anchor="middle">OPEN</text><text x="160" y="148" fill="#96a8c2" font-size="10" text-anchor="middle">SCHEMATIC · NOT TO SCALE</text></svg>
+    <div class="tag">MODE 04 · BUILD IT</div><h2>Build a simple circuit</h2><p>Select virtual components, check terminal connections on the schematic, and operate the switch.</p>
+
+    <!-- Always-Visible Numbered Steps for Build It -->
+    <div class="lesson-tools">
+      <div class="meta-row">
+        <strong id="buildStepsHeading">Step-by-Step Virtual Circuit Guide</strong>
+        <button type="button" class="primary" style="padding:7px 12px;font-size:13px" onclick="requestBuilderHelp()">💡 Need help?</button>
+      </div>
+      <ol id="buildStepList" class="step-list"></ol>
+      <div id="buildValidationMsg" class="feedback small" role="status" aria-live="polite"></div>
+
+      <!-- Persistent Caption Box for Builder Help -->
+      <div id="buildHelpCard" class="caption-card" aria-live="polite" hidden>
+        <div id="buildHelpLabel" class="caption-label">BUILD STEP HINT · CAPTION</div>
+        <div id="buildHelpCaption" class="caption-line"></div>
+        <p id="buildHelpAudioStatus" class="audio-status"></p>
+        <div class="btn-row">
+          <button type="button" onclick="requestBuilderHelp(true)">🔊 Replay hint</button>
+          <button type="button" onclick="stopGuideSpeechOnly()">■ Stop voice</button>
+          <button type="button" onclick="dismissBuilderHelp()">Dismiss hint</button>
+        </div>
+      </div>
+    </div>
+<label for="battery">Battery voltage (connects between terminals T1 and T2)</label><select id="battery"><option value="3">3 V battery</option><option value="6" selected>6 V battery</option><option value="9">9 V battery</option><option value="12">12 V battery</option></select>
+    <label for="resistorSelect" style="display:block;margin-top:10px">Resistor component (connects between terminals R1 and R2)</label><select id="resistorSelect"><option value="2">2 Ω resistor</option><option value="4" selected>4 Ω resistor</option><option value="6">6 Ω resistor</option><option value="12">12 Ω resistor</option></select>
+    <svg viewBox="0 0 320 165" role="img" aria-label="Virtual battery, switch and resistor circuit with labeled terminals">
+      <path d="M45 35 H105 M165 35 H275 V120 H45 V35" stroke="#53647d" stroke-width="3" fill="none"/>
+      <path id="switchWire" d="M105 35 L150 35" stroke="#fbbf24" stroke-width="3" fill="none"/>
+      <circle id="termS1" cx="105" cy="35" r="4" fill="#edf4ff"/>
+      <circle id="termS2" cx="165" cy="35" r="4" fill="#edf4ff"/>
+      <rect id="builderResistorBox" x="180" y="24" width="48" height="22" rx="3" fill="#18253a" stroke="#67e8f9" stroke-width="2"/>
+      <text x="204" y="39" fill="#edf4ff" font-size="10" text-anchor="middle">R</text>
+      <path id="builderBatteryLines" d="M45 60 V95 M34 68 H56 M38 88 H52" stroke="#edf4ff" stroke-width="3"/>
+      <text x="45" y="15" fill="#96a8c2" font-size="10" text-anchor="middle">BATTERY</text>
+      <text x="22" y="69" fill="#67e8f9" font-size="9" text-anchor="middle">T1(+)</text>
+      <text x="22" y="92" fill="#67e8f9" font-size="9" text-anchor="middle">T2(-)</text>
+      <text id="switchLabel" x="135" y="18" fill="#fbbf24" font-size="10" text-anchor="middle">OPEN</text>
+      <text x="105" y="50" fill="#96a8c2" font-size="9" text-anchor="middle">S1</text>
+      <text x="165" y="50" fill="#96a8c2" font-size="9" text-anchor="middle">S2</text>
+      <text x="176" y="18" fill="#67e8f9" font-size="9" text-anchor="middle">R1</text>
+      <text x="232" y="18" fill="#67e8f9" font-size="9" text-anchor="middle">R2</text>
+      <text x="160" y="152" fill="#96a8c2" font-size="10" text-anchor="middle">VIRTUAL SCHEMATIC · SIMULATION ONLY</text>
+ </svg>
     <button id="switchBtn" class="primary" style="width:100%" onclick="toggleSwitch()">Close switch</button>
-    <div class="readout" style="margin-top:14px"><div class="tag">CIRCUIT STATUS</div><h3 id="circuitStatus">Circuit open</h3><p id="circuitResult">The open switch interrupts the circuit. Current is zero.</p><div class="formula" id="circuitCurrent">I = 0 A</div></div>
-    <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
+    <div class="readout" style="margin-top:14px"><div class="tag">VIRTUAL CIRCUIT STATUS</div><h3 id="circuitStatus">Circuit open</h3><p id="circuitResult">The open switch interrupts the circuit. Current is zero.</p><div class="formula" id="circuitCurrent">I = 0 A</div></div>
+    <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="resetBuilderTask()">Reset build task</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
   </section>
 </main>
-<footer>Physics Booster Lab · Prototype v0.5<br>Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
+<footer>Physics Booster Lab · Prototype v0.6<br>Virtual simulation only — no physical circuit is tested. Some chapter names are a reference list; topic content and test banks must be verified against your board syllabus.</footer>
 <script>
 const chapters = [
  {id:1,name:"Electric Charges and Fields",topics:["Electric charge","Coulomb's law","Electric field","Electric field lines","Electric dipole","Electric flux","Gauss's law"]},
@@ -237,7 +420,184 @@ const chapters = [
  {id:14,name:"Semiconductor Electronics",topics:["Energy bands","Intrinsic and extrinsic semiconductors","p-n junction diode","Rectifier","Logic gates"]}
 ];
 const sections=["home","learnChapters","learnTopics","lesson","testChapters","testSetup","test","testResults","experiment","builder"];
-function showOnly(id){if(id!=="lesson" && typeof stopLessonVoice==="function" && lessonVoiceState!=="stopped"){stopLessonVoice(false);}sections.forEach(n=>document.getElementById(n).hidden=n!==id);window.scrollTo({top:0,behavior:"smooth"});}
+
+// ============================================================================
+// SMART GUIDE, PREFERENCES (localStorage) & MULTILINGUAL GUIDE DICTIONARY
+// ============================================================================
+const STORAGE_KEY = "pbl_prefs_v1";
+let userPrefs = {
+  onboarded: false,
+  guideMode: "guided",       // "guided" | "self" | "off"
+  audioPref: "ask",          // "ask" | "enabled" | "muted"
+  schoolMedium: "english",   // "english" | "hindi"
+  preferredLanguage: "english" // "english" | "hinglish" | "hindi"
+};
+let pendingAudioCallback = null;
+
+function loadUserPrefs(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === "object"){
+        if(typeof parsed.onboarded === "boolean") userPrefs.onboarded = parsed.onboarded;
+        if(["guided","self","off"].includes(parsed.guideMode)) userPrefs.guideMode = parsed.guideMode;
+        if(["ask","enabled","muted"].includes(parsed.audioPref)) userPrefs.audioPref = parsed.audioPref;
+        if(["english","hindi"].includes(parsed.schoolMedium)) userPrefs.schoolMedium = parsed.schoolMedium;
+        if(["english","hinglish","hindi"].includes(parsed.preferredLanguage)) userPrefs.preferredLanguage = parsed.preferredLanguage;
+      }
+    }
+  } catch(e) {}
+}
+
+function saveUserPrefs(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userPrefs));
+  } catch(e) {}
+}
+
+const guideTexts = {
+  english: {
+    onboardingQ: "Would you like a guided tour, or would you prefer to explore by yourself?",
+    onboardingSub: "You can switch your explanation language or change this preference anytime in ⚙ Guide & Language.",
+    btnGuided: "Guide me",
+    btnSelf: "I'll do it myself",
+    btnOff: "Turn off permanently",
+    homeTour: "Welcome! Tap '01 Learn Lesson' to study Ohm's Law with teacher captions, then practise in '03 Experiment It' and '04 Build It' before taking '02 Take Test'.",
+    lessonGuideHeader: "ON-SCREEN LESSON GUIDE",
+    lessonGuideSteps: "1. Select your preferred explanation language below (your school medium stays unchanged). 2. Read the teacher captions or tap Play lesson for optional audio. 3. Use Pause, Resume, Stop, or Previous/Next anytime.",
+    audioPermTitle: "Allow optional voice narration?",
+    audioPermDesc: "Voice narration will speak the selected caption or hint in your chosen explanation language. It will never autoplay if you disable it.",
+    allowBtn: "Allow & Speak",
+    muteBtn: "Disable audio (read only)",
+    expHeading: "Step-by-Step Lab Tasks (Virtual Simulation)",
+    expSteps: [
+      "Step 1: Set Voltage slider to 6 V and Resistance slider to 3 Ω to verify I = 6 / 3 = 2.00 A.",
+      "Step 2: Keep Resistance at 3 Ω and move Voltage slider to 12 V. Observe how doubling voltage doubles current to 4.00 A.",
+      "Step 3: Keep Voltage at 12 V and move Resistance slider to 6 Ω. Observe how doubling resistance halves current back to 2.00 A."
+    ],
+    expHelp: [
+      "For Step 1, drag the top Voltage slider to 6 volts and the bottom Resistance slider to 3 ohms. The virtual readout will show 2.00 amperes.",
+      "For Step 2, leave the Resistance slider at 3 ohms and drag the Voltage slider all the way to 12 volts. Because resistance is constant, doubling voltage doubles the current to 4.00 amperes.",
+      "For Step 3, keep the Voltage slider at 12 volts and drag the Resistance slider to 6 ohms. Doubling the resistance opposes current more strongly, halving the simulated current to 2.00 amperes."
+    ],
+    expAllDone: "All 3 experiment steps verified! You observed both direct proportionality (I ∝ V) and inverse proportionality (I ∝ 1/R) in this virtual lab.",
+    buildHeading: "Step-by-Step Virtual Circuit Assembly",
+    buildSteps: [
+      "Step 1 (Battery at T1–T2): Keep switch S1–S2 OPEN and select the '12 V battery' between terminals T1(+) and T2(-).",
+      "Step 2 (Resistor at R1–R2): With switch S1–S2 still OPEN, select the '4 Ω resistor' between terminals R1 and R2.",
+      "Step 3 (Close Switch S1–S2): Tap 'Close switch' to bridge terminals S1 and S2. Verify virtual current I = 12 V / 4 Ω = 3.00 A.",
+      "Step 4 (Open Switch S1–S2): Tap 'Open switch' to disconnect S1 from S2 safely and confirm current returns to 0 A."
+    ],
+    buildHelp: [
+      "Step 1: Make sure the virtual switch between S1 and S2 is OPEN so no current flows while selecting components. Then open the Battery dropdown and connect the 12 volt battery across terminals T1 positive and T2 negative.",
+      "Step 2: Keep switch S1 to S2 OPEN. Open the Resistor component dropdown and connect the 4 ohm resistor between terminals R1 and R2 on the top branch.",
+      "Step 3: Both components are connected: 12 volts across T1 and T2, and 4 ohms across R1 and R2. Now tap Close switch to connect terminal S1 to terminal S2 and complete the virtual loop.",
+      "Step 4: You verified I equals 3.00 amperes in the closed virtual loop. Now tap Open switch to separate S1 from S2 and interrupt the conducting path."
+    ],
+    buildAllDone: "Virtual circuit build complete! You connected the 12 V source (T1–T2), the 4 Ω resistor (R1–R2), tested the closed path (3.00 A), and opened the switch safely."
+  },
+  hinglish: {
+    onboardingQ: "Kya aap guided tour chahte hain, ya khud explore karna pasand karenge?",
+    onboardingSub: "Aap apni explanation language ya guide setting kabhi bhi upar ⚙ Guide & Language mein badal sakte hain.",
+    btnGuided: "Guide me (Madad karein)",
+    btnSelf: "I'll do it myself (Main khud karunga)",
+    btnOff: "Hamesha ke liye band karein",
+    homeTour: "Welcome! Pehle '01 Learn Lesson' khol kar Ohm's Law samjhein, phir '03 Experiment It' aur '04 Build It' mein virtual circuit try karein, aur aakhir mein '02 Take Test' dein.",
+    lessonGuideHeader: "ON-SCREEN LESSON GUIDE (HINGLISH)",
+    lessonGuideSteps: "1. Neeche apni pasandida explanation language chunein (school medium nahi badlega). 2. Teacher captions padhein ya voice ke liye Play lesson dabayein. 3. Pause, Resume, Stop ya Previous/Next ka use karein.",
+    audioPermTitle: "Kya hum voice narration chala sakte hain?",
+    audioPermDesc: "Voice narration aapki chuni hui bhasha mein caption ya step bolkar samjhayega. Audio disable karne par yeh kabhi autoplay nahi karega.",
+    allowBtn: "Allow & Speak",
+    muteBtn: "Audio band rakhein",
+    expHeading: "Step-by-Step Lab Tasks (Virtual Simulation)",
+    expSteps: [
+      "Step 1: Voltage slider ko 6 V aur Resistance slider ko 3 Ω par set karein taaki I = 6 / 3 = 2.00 A verify ho.",
+      "Step 2: Resistance ko 3 Ω par hi rakhein aur Voltage slider ko 12 V par le jayein. Dekhein kaise voltage double karne par current double hokar 4.00 A ho jata hai.",
+      "Step 3: Voltage ko 12 V par rakhein aur Resistance slider ko 6 Ω par set karein. Dekhein kaise resistance double karne par current aadha (2.00 A) reh jata hai."
+    ],
+    expHelp: [
+      "Step 1 ke liye: Upar wale Voltage slider ko 6 volt par aur neeche wale Resistance slider ko 3 ohm par set karein. Virtual meter 2.00 ampere dikhayega.",
+      "Step 2 ke liye: Resistance ko 3 ohm par rehne dein aur Voltage slider ko badha kar 12 volt karein. Kyunki R constant hai, voltage double karne se current bhi double hokar 4.00 ampere ho jayega.",
+      "Step 3 ke liye: Voltage ko 12 volt par rakhein aur Resistance slider ko 6 ohm par le jayein. Resistance double hone se opposition badhta hai aur simulated current ghat kar 2.00 ampere reh jata hai."
+    ],
+    expAllDone: "Teeno virtual lab steps poore ho gaye! Aapne dekh liya ki constant R par I voltage ke proportional hai, aur constant V par I resistance ke inversely proportional hai.",
+    buildHeading: "Step-by-Step Virtual Circuit Guide",
+    buildSteps: [
+      "Step 1 (Battery T1–T2 par): Switch S1–S2 ko OPEN rakhein aur terminals T1(+) aur T2(-) ke beech '12 V battery' select karein.",
+      "Step 2 (Resistor R1–R2 par): Switch S1–S2 ko OPEN rakhte hue 
+terminals R1 aur R2 ke beech '4 Ω resistor' select karein.",
+      "Step 3 (Switch S1–S2 Close karein): 'Close switch' dabayein taaki S1 aur S2 jud jayein aur virtual current I = 12 V / 4 Ω = 3.00 A mile.",
+      "Step 4 (Switch S1–S2 Open karein): Circuit path todne ke liye 'Open switch' dabayein aur confirm karein ki current 0 A ho gaya."
+    ],
+    buildHelp: [
+      "Step 1: Components badalte waqt safety ke liye switch S1 se S2 ko OPEN rakhein. Ab Battery dropdown kholein aur terminals T1 plus aur T2 minus ke beech 12 volt battery chunein.",
+      "Step 2: Switch S1 se S2 ko abhi bhi OPEN rakhein. Resistor dropdown kholein aur upar wale terminals R1 aur R2 ke beech 4 ohm resistor connect karein.",
+      "Step 3: Dono virtual components sahi jud gaye hain: T1-T2 par 12 volt aur R1-R2 par 4 ohm. Ab Close switch button dabayein taaki S1 aur S2 jud jayein aur loop poora ho.",
+      "Step 4: Aapne closed virtual circuit mein 3.00 ampere current verify kar liya. Ab Open switch dabayein taaki S1 aur S2 alag ho jayein aur current zero ho jaye."
+    ],
+    buildAllDone: "Virtual circuit build poora hua! Aapne T1–T2 par 12 V battery, R1–R2 par 4 Ω resistor joda, S1–S2 close karke 3.00 A verify kiya, aur switch wapas open kiya."
+  },
+  hindi: {
+    onboardingQ: "Kya aap margdarshan (guided tour) chahenge, ya swayam explore karna pasand karenge?",
+    onboardingSub: "Aap apni vyakhya ki bhasha ya guide setting kabhi bhi upar ⚙ Guide & Language mein badal sakte hain.",
+    btnGuided: "Margdarshan karein (Guide me)",
+    btnSelf: "Main swayam karunga",
+    btnOff: "Guide hamesha ke liye band karein",
+    homeTour: "Swagat hai! Pehle '01 Learn Lesson' mein Ohm ka niyam samjhein, phir '03 Experiment It' aur '04 Build It' mein aabhasi (virtual) paripath ka abhyas karein, aur ant mein '02 Take Test' dein.",
+    lessonGuideHeader: "PATH MARGDARSHIKA (ON-SCREEN GUIDE)",
+    lessonGuideSteps: "1. Neeche apni samajhne ki bhasha chunein (vidyalaya ka pariksha madhyam nahi badlega). 2. Caption padhein ya aawaz ke liye Play lesson dabayein. 3. Pause, Resume, Stop ya Previous/Next ka upyog karein.",
+    audioPermTitle: "Kya aawaz (voice narration) chalane ki anumati hai?",
+    audioPermDesc: "Yeh aapki chuni gayi bhasha mein keval vartaman caption ya charan padhega. Aawaz band karne par yeh kabhi swayam nahi chalega.",
+    allowBtn: "Anumati dein aur sunein",
+    muteBtn: "Aawaz band rakhein",
+    expHeading: "Kramwar Prayogshala Charan (Virtual Simulation)",
+    expSteps: [
+      "Charan 1: Voltage slider ko 6 V aur Resistance slider ko 3 Ω par set karein jisse I = 6 / 3 = 2.00 A satyapit ho.",
+      "Charan 2: Pratirodh (Resistance) ko 3 Ω par sthir rakhein aur Voltage ko 12 V par le jayein. Dekhein ki vibhavantar duguna karne par dhara duguni (4.00 A) ho jaati hai.",
+      "Charan 3: Voltage ko 12 V par rakhein aur Resistance slider ko 6 Ω par le jayein. Dekhein ki pratirodh duguna karne par dhara aadhi (2.00 A) reh jaati hai."
+    ],
+    expHelp: [
+      "Charan 1 ke liye: Upar wale Voltage slider ko chhah volt par aur neeche wale Resistance slider ko teen ohm par rakhein. Aabhasi meter do dashamlav shunya ampere dikhayega.",
+      "Charan 2 ke liye: Pratirodh ko teen ohm par hi rehne dein aur Voltage slider ko baarah volt tak badhayein. Niyat pratirodh par vibhavantar duguna karne se dhara char ampere ho jaati hai.",
+      "Charan 3 ke liye: Voltage ko baarah volt par rakhein aur Resistance slider ko chhah ohm par le jayein. Pratirodh duguna hone se dhara ghat kar do ampere reh jaati hai."
+    ],
+    expAllDone: "Teeno prayog charan safaltapurvak poore hue! Aapne is aabhasi prayogshala mein V = IR ke dono anupat satyapit kar liye hain.",
+    buildHeading: "Kramwar Aabhasi Paripath Nirman (Build It)",
+    buildSteps: [
+      "Charan 1 (Battery T1–T2 par): Switch S1–S2 ko KHULA (OPEN) rakhein aur T1(+) tatha T2(-) terminals ke beech '12 V battery' chunein.",
+      "Charan 2 (Pratirodhak R1–R2 par): Switch S1–S2 ko KHULA rakhte hue terminals R1 aur R2 ke beech '4 Ω resistor' chunein.",
+      "Charan 3 (Switch S1–S2 Band karein): Terminals S1 aur S2 ko jodne ke liye 'Close switch' dabayein aur dhara I = 12 V / 4 Ω = 3.00 A jaanchein.",
+      "Charan 4 (Switch S1–S2 Kholein): Paripath ko surakshit roop se kholne ke liye 'Open switch' dabayein aur jaanchein ki dhara 0 A ho gayi."
+    ],
+    buildHelp: [
+      "Charan 1: Ghatak chunte samay switch S1 aur S2 ko khula rakhein. Ab Battery dropdown se T1 dhan aur T2 rin terminals ke beech baarah volt ki battery chunein.",
+      "Charan 2: Switch S1 aur S2 ko abhi bhi khula rakhein. Resistor dropdown kholein aur terminals R1 tatha R2 ke beech chaar ohm ka pratirodhak jodein.",
+      "Charan 3: T1-T2 par baarah volt battery aur R1-R2 par chaar ohm pratirodhak jud chuke hain. Ab Close switch dabayein jisse S1 aur S2 jud jayein aur aabhasi paripath poora ho.",
+      "Charan 4: Aapne band paripath mein teen ampere dhara ki jaanch kar li hai. Ab Open switch dabayein jisse S1 aur S2 alag ho jayein aur dhara shunya ho jaye."
+    ],
+    buildAllDone: "Aabhasi paripath nirman poora hua! Aapne T1–T2 par 12 V battery, R1–R2 par 4 Ω pratirodhak joda, S1–S2 band karke 3.00 A dhara jaanchi, aur switch khola."
+  }
+};
+
+function currentLangPack(){
+  return guideTexts[userPrefs.preferredLanguage] || guideTexts.english;
+}
+
+function showOnly(id){
+  if(id!=="lesson" && typeof stopLessonVoice==="function" && lessonVoiceState!=="stopped"){
+    stopLessonVoice(false);
+  }
+  if(typeof stopGuideSpeechOnly==="function"){
+    stopGuideSpeechOnly();
+  }
+  sections.forEach(n=>document.getElementById(n).hidden=n!==id);
+  const homeTour = document.getElementById("homeTourBanner");
+  if(homeTour){
+    homeTour.hidden = !(id==="home" && userPrefs.onboarded && userPrefs.guideMode==="guided" && !homeTourDismissed);
+  }
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 function goHome(){stopTimer();showOnly("home");}
 function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
 let selectedChapter=chapters[2], selectedTopic="Ohm's Law";
@@ -282,16 +642,270 @@ function lockAnswer(chosen,timedOut){if(locked)return;locked=true;stopTimer();do
 function nextQuestion(){if(!locked)return;if(questionIndex<activeQuestions.length-1){questionIndex++;loadQuestion();}else{finishTest();}}
 function endTestEarly(){stopTimer();finishTest();}
 function finishTest(){stopTimer();showOnly("testResults");document.getElementById("finalScore").textContent=score.toFixed(2).replace(/\.00$/,"")+" points";document.getElementById("correctCount").textContent=correctN;document.getElementById("wrongCount").textContent=wrongN;document.getElementById("timeoutCount").textContent=timeoutN;const allPerfect=correctN===activeQuestions.length&&wrongN===0&&timeoutN===0;const bonus=allPerfect?activeQuestions.length*2:0;document.getElementById("rewardCount").textContent=(Math.max(0,score)+bonus).toFixed(2).replace(/\.00$/,"");document.getElementById("resultSummary").textContent=correctN+" correct, "+wrongN+" wrong, "+timeoutN+" timed out out of "+activeQuestions.length+" questions.";const reward=document.getElementById("perfectReward");reward.hidden=!allPerfect;if(allPerfect)reward.innerHTML='<strong class="good">Perfect run unlocked!</strong><p>Bonus: +'+bonus+' reward points. Great accuracy. Try the next difficulty when ready.</p>';document.getElementById("testProgressBar").style.width="100%";}
-function openExperiment(){stopTimer();showOnly("experiment");updateExperiment();}
-function updateExperiment(){const v=Number(document.getElementById("voltage").value),r=Number(document.getElementById("resistance").value),i=v/r;document.getElementById("voltageLabel").textContent=v+" V";document.getElementById("resistanceLabel").textContent=r+" Ω";document.getElementById("currentValue").textContent=i.toFixed(2)+" A";document.getElementById("calculation").textContent="I = "+v+" V / "+r+" Ω";document.getElementById("experimentInsight").textContent=v===0?"With zero potential difference, current is zero in this simplified model.":"Current = "+i.toFixed(2)+" A. Increase voltage to increase current, or increase resistance to reduce it.";}
-document.getElementById("voltage").addEventListener("input",updateExperiment);document.getElementById("resistance").addEventListener("input",updateExperiment);
-function resetExperiment(){document.getElementById("voltage").value=6;document.getElementById("resistance").value=3;updateExperiment();}
+
+// ============================================================================
+// MODE 03: EXPERIMENT IT (WITH STEP-BY-STEP GUIDE, VALIDATION & NEED HELP)
+// ============================================================================
+let expCurrentStep = 0; // 0, 1, 2 (or 3 when all completed)
+let expDone = [false, false, false];
+
+function openExperiment(){
+  stopTimer();
+  showOnly("experiment");
+  updateExperiment();
+}
+
+function renderExperimentSteps(){
+  const pack = currentLangPack();
+  document.getElementById("expStepsHeading").textContent = pack.expHeading;
+  const list = document.getElementById("expStepList");
+  list.innerHTML = "";
+  pack.expSteps.forEach((stepText, idx) => {
+    const li = document.createElement("li");
+    const isDone = expDone[idx];
+    const isActive = (!isDone && idx === expCurrentStep);
+    li.className = "step-item" + (isActive ? " active" : "") + (isDone ? " done" : "");
+    const badgeText = isDone ? "✓ Done" : (isActive ? "Current step" : "Step " + (idx + 1));
+    li.innerHTML = '<span>' + stepText + '</span><span class="step-badge">' + badgeText + '</span>';
+    list.appendChild(li);
+  });
+
+  // Highlight active component on the Experiment SVG schematic
+  const batSvg = document.getElementById("expBatterySvg");
+  const resSvg = document.getElementById("expResistorSvg");
+  if(batSvg && resSvg){
+    batSvg.classList.toggle("svg-focus", expCurrentStep === 0 || expCurrentStep === 1);
+    resSvg.classList.toggle("svg-focus", expCurrentStep === 0 || expCurrentStep === 2);
+  }
+}
+
+function validateExperimentAction(v, r){
+  const pack = currentLangPack();
+  const msgEl = document.getElementById("expValidationMsg");
+  if(expCurrentStep === 0){
+    if(v === 6 && r === 3){
+      expDone[0] = true;
+      expCurrentStep = 1;
+      msgEl.innerHTML = '<span class="good">✓ Step 1 verified (6 V, 3 Ω → 2.00 A).</span> Now proceed to Step 2: keep Resistance at 3 Ω and set Voltage to 12 V.';
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 1):</strong> Set Voltage to <strong>6 V</strong> (currently ' + v + ' V) and Resistance to <strong>3 Ω</strong> (currently ' + r + ' Ω).';
+    }
+  } else if(expCurrentStep === 1){
+    if(v === 12 && r === 3){
+      expDone[1] = true;
+      expCurrentStep = 2;
+      msgEl.innerHTML = '<span class="good">✓ Step 2 verified (12 V, 3 Ω → 4.00 A).</span> Doubling voltage doubled the current! Now try Step 3: set Resistance to 6 Ω while keeping Voltage at 12 V.';
+    } else if(r !== 3){
+      msgEl.innerHTML = '<span class="warn">Correction for Step 2:</span> Keep Resistance fixed at <strong>3 Ω</strong> (you set ' + r + ' Ω) so we only test the effect of doubling Voltage to <strong>12 V</strong>.';
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 2):</strong> Resistance is 3 Ω. Move the Voltage slider to <strong>12 V</strong> (currently ' + v + ' V).';
+    }
+  } else if(expCurrentStep === 2){
+    if(v === 12 && r === 6){
+      expDone[2] = true;
+      expCurrentStep = 3;
+      msgEl.innerHTML = '<span class="good">✓ ' + pack.expAllDone + '</span>';
+    } else if(v !== 12){
+      msgEl.innerHTML = '<span class="warn">Correction for Step 3:</span> Keep Voltage fixed at <strong>12 V</strong> (you set ' + v + ' V) and move Resistance to <strong>6 Ω</strong>.';
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 3):</strong> Voltage is 12 V. Move the Resistance slider to <strong>6 Ω</strong> (currently ' + r + ' Ω).';
+    }
+  } else {
+    msgEl.innerHTML = '<span class="good">✓ ' + pack.expAllDone + '</span> Feel free to explore any slider values or reset the experiment.';
+  }
+  renderExperimentSteps();
+}
+
+function updateExperiment(){
+  const v=Number(document.getElementById("voltage").value),r=Number(document.getElementById("resistance").value),i=v/r;
+  document.getElementById("voltageLabel").textContent=v+" V";
+  document.getElementById("resistanceLabel").textContent=r+" Ω";
+  document.getElementById("currentValue").textContent=i.toFixed(2)+" A";
+  document.getElementById("calculation").textContent="I = "+v+" V / "+r+" Ω";
+  document.getElementById("experimentInsight").textContent=v===0?"With zero potential difference, current is zero in this simplified model.":"Current = "+i.toFixed(2)+" A. Increase voltage to increase current, or increase resistance to reduce it.";
+  validateExperimentAction(v, r);
+}
+document.getElementById("voltage").addEventListener("input",updateExperiment);
+document.getElementById("resistance").addEventListener("input",updateExperiment);
+
+function resetExperiment(){
+  stopGuideSpeechOnly();
+  expCurrentStep = 0;
+  expDone = [false, false, false];
+  document.getElementById("expHelpCard").hidden = true;
+  document.getElementById("voltage").value=6;
+  document.getElementById("resistance").value=3;
+  // Set to Step 0 first, then validate so user sees Step 1 verified or can adjust
+  expCurrentStep = 1;
+  expDone = [true, false, false];
+  updateExperiment();
+}
+
+function requestExperimentHelp(){
+  const pack = currentLangPack();
+  const idx = Math.min(expCurrentStep, pack.expHelp.length - 1);
+  const text = expCurrentStep >= pack.expHelp.length ? pack.expAllDone : pack.expHelp[idx];
+  const card = document.getElementById("expHelpCard");
+  document.getElementById("expHelpLabel").textContent =
+    expCurrentStep >= pack.expHelp.length ? "ALL STEPS COMPLETE · CAPTION" : ("STEP " + (idx + 1) + " HINT · CAPTION");
+  document.getElementById("expHelpCaption").textContent = text;
+  card.hidden = false;
+  speakGuideOnce(text, "expHelpAudioStatus");
+}
+
+function dismissExperimentHelp(){
+  stopGuideSpeechOnly();
+  document.getElementById("expHelpCard").hidden = true;
+}
+
+// ============================================================================
+// MODE 04: BUILD IT (WITH TERMINAL HIGHLIGHTS, VALIDATION & NEED HELP)
+// ============================================================================
 let switchClosed=false;
-function openBuilder(){stopTimer();showOnly("builder");switchClosed=false;updateCircuit();}
-function toggleSwitch(){switchClosed=!switchClosed;updateCircuit();}
-function updateCircuit(){const v=Number(document.getElementById("battery").value),r=Number(document.getElementById("resistorSelect").value),i=switchClosed?v/r:0;document.getElementById("switchBtn").textContent=switchClosed?"Open switch":"Close switch";document.getElementById("switchLabel").textContent=switchClosed?"CLOSED":"OPEN";document.getElementById("switchWire").setAttribute("d",switchClosed?"M105 35 H165":"M105 35 L150 35");document.getElementById("switchWire").setAttribute("stroke",switchClosed?"#86efac":"#fbbf24");document.getElementById("circuitStatus").textContent=switchClosed?"Circuit closed":"Circuit open";document.getElementById("circuitResult").textContent=switchClosed?v+" V / "+r+" Ω = "+i.toFixed(2)+" A. The idealized circuit is complete.":"The open switch interrupts the circuit. Current is zero.";document.getElementById("circuitCurrent").textContent="I = "+i.toFixed(2)+" A";}
-document.getElementById("battery").addEventListener("change",updateCircuit);document.getElementById("resistorSelect").addEventListener("change",updateCircuit);
-// Lesson narration: segment-based speech with reliable phrase/boundary pause-resume and previous/next controls.
+let buildCurrentStep = 0; // 0: Battery 12V, 1: Resistor 4Ω, 2: Close switch, 3: Open switch, 4: Done
+let buildDone = [false, false, false, false];
+
+function openBuilder(){
+  stopTimer();
+  showOnly("builder");
+  switchClosed=false;
+  updateCircuit();
+}
+
+function toggleSwitch(){
+  switchClosed=!switchClosed;
+  updateCircuit();
+}
+
+function resetBuilderTask(){
+  stopGuideSpeechOnly();
+  switchClosed = false;
+  buildCurrentStep = 0;
+  buildDone = [false, false, false, false];
+  document.getElementById("battery").value = "6";
+  document.getElementById("resistorSelect").value = "4";
+  document.getElementById("buildHelpCard").hidden = true;
+  updateCircuit();
+  }
+
+function renderBuilderSteps(){
+  const pack = currentLangPack();
+  document.getElementById("buildStepsHeading").textContent = pack.buildHeading;
+  const list = document.getElementById("buildStepList");
+  list.innerHTML = "";
+  pack.buildSteps.forEach((stepText, idx) => {
+    const li = document.createElement("li");
+    const isDone = buildDone[idx];
+    const isActive = (!isDone && idx === buildCurrentStep);
+    li.className = "step-item" + (isActive ? " active" : "") + (isDone ? " done" : "");
+    const badgeText = isDone ? "✓ Done" : (isActive ? "Current step" : "Step " + (idx + 1));
+    li.innerHTML = '<span>' + stepText + '</span><span class="step-badge">' + badgeText + '</span>';
+    list.appendChild(li);
+  });
+
+  // Visual highlights on the schematic for the active step
+  const batLines = document.getElementById("builderBatteryLines");
+  const resBox = document.getElementById("builderResistorBox");
+  const swWire = document.getElementById("switchWire");
+  if(batLines && resBox && swWire){
+    batLines.classList.toggle("svg-focus", buildCurrentStep === 0);
+    resBox.classList.toggle("svg-focus", buildCurrentStep === 1);
+    swWire.classList.toggle("svg-focus", buildCurrentStep === 2 || buildCurrentStep === 3);
+  }
+}
+
+function validateBuilderAction(v, r, isClosed){
+  const pack = currentLangPack();
+  const msgEl = document.getElementById("buildValidationMsg");
+
+  if(buildCurrentStep === 0){
+    if(isClosed){
+      msgEl.innerHTML = '<span class="warn">Safety check (Step 1):</span> Please keep switch <strong>S1–S2 OPEN</strong> while selecting the battery across terminals <strong>T1(+) and T2(-)</strong>. Tap "Open switch" first.';
+    } else if(v === 12){
+      buildDone[0] = true;
+      buildCurrentStep = 1;
+      // If resistor is already 4 Ω, still prompt user to verify/confirm Step 2
+      msgEl.innerHTML = '<span class="good">✓ Step 1 verified:</span> 12 V battery connected between terminals <strong>T1(+) and T2(-)</strong> with switch S1–S2 open. Now check Step 2 (4 Ω resistor between <strong>R1 and R2</strong>) or close the switch in Step 3.';
+      if(r === 4){
+        buildDone[1] = true;
+        buildCurrentStep = 2;
+        msgEl.innerHTML = '<span class="good">✓ Steps 1 &amp; 2 verified:</span> 12 V battery at <strong>T1–T2</strong> and 4 Ω resistor at <strong>R1–R2</strong>. Now proceed to <strong>Step 3</strong>: tap <strong>Close switch</strong> to connect terminals <strong>S1 and S2</strong>.';
+      }
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 1):</strong> Keep switch <strong>S1–S2 OPEN</strong> and select the <strong>12 V battery</strong> (currently ' + v + ' V) between terminals <strong>T1(+) and T2(-)</strong>.';
+    }
+  } else if(buildCurrentStep === 1){
+    if(isClosed){
+      msgEl.innerHTML = '<span class="warn">Safety check (Step 2):</span> Keep switch <strong>S1–S2 OPEN</strong> while connecting the resistor between terminals <strong>R1 and R2</strong>.';
+    } else if(v !== 12){
+      buildDone[0] = false;
+      buildCurrentStep = 0;
+      msgEl.innerHTML = '<span class="warn">Correction:</span> Battery changed to ' + v + ' V. Re-select the <strong>12 V battery</strong> across terminals <strong>T1 and T2</strong> first.';
+    } else if(r === 4){
+      buildDone[1] = true;
+      buildCurrentStep = 2;
+      msgEl.innerHTML = '<span class="good">✓ Step 2 verified:</span> 4 Ω resistor connected between terminals <strong>R1 and R2</strong>. Now proceed to <strong>Step 3</strong>: tap <strong>Close switch</strong> to bridge terminals <strong>S1 and S2</strong>.';
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 2):</strong> Select the <strong>4 Ω resistor</strong> (currently ' + r + ' Ω) between terminals <strong>R1 and R2</strong>.';
+    }
+  } else if(buildCurrentStep === 2){
+    if(v !== 12 || r !== 4){
+      msgEl.innerHTML = '<span class="warn">Component check (Step 3):</span> For this guided build, keep <strong>12 V battery</strong> at T1–T2 and <strong>4 Ω resistor</strong> at R1–R2 (currently ' + v + ' V and ' + r + ' Ω), then close switch S1–S2.';
+    } else if(isClosed){
+      buildDone[2] = true;
+      buildCurrentStep = 3;
+      msgEl.innerHTML = '<span class="good">✓ Step 3 verified:</span> Switch <strong>S1–S2 CLOSED</strong>! Virtual current I = 12 V / 4 Ω = <strong>3.00 A</strong> flows through T1 → S1–S2 → R1–R2 → T2. Now complete <strong>Step 4</strong>: tap <strong>Open switch</strong>.';
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 3):</strong> Components are ready (12 V at T1–T2, 4 Ω at R1–R2). Tap <strong>Close switch</strong> to connect terminal <strong>S1 to S2</strong>.';
+    }
+  } else if(buildCurrentStep === 3){
+    if(!isClosed){
+      buildDone[3] = true;
+      buildCurrentStep = 4;
+      msgEl.innerHTML = '<span class="good">✓ ' + pack.buildAllDone + '</span>';
+    } else {
+      msgEl.innerHTML = '<strong>Current goal (Step 4):</strong> Tap <strong>Open switch</strong> to disconnect terminal <strong>S1 from S2</strong> and bring the simulated current back to 0 A.';
+    }
+      } else {
+    msgEl.innerHTML = '<span class="good">✓ ' + pack.buildAllDone + '</span> You can now freely test any battery and resistor combination in this virtual simulator.';
+  }
+  renderBuilderSteps();
+}
+
+function updateCircuit(){
+  const v=Number(document.getElementById("battery").value),r=Number(document.getElementById("resistorSelect").value),i=switchClosed?v/r:0;
+  document.getElementById("switchBtn").textContent=switchClosed?"Open switch":"Close switch";
+  document.getElementById("switchLabel").textContent=switchClosed?"CLOSED":"OPEN";
+  document.getElementById("switchWire").setAttribute("d",switchClosed?"M105 35 H165":"M105 35 L150 35");
+  document.getElementById("switchWire").setAttribute("stroke",switchClosed?"#86efac":"#fbbf24");
+  document.getElementById("circuitStatus").textContent=switchClosed?"Circuit closed":"Circuit open";
+  document.getElementById("circuitResult").textContent=switchClosed?v+" V / "+r+" Ω = "+i.toFixed(2)+" A. The idealized virtual circuit is complete.":"The open switch interrupts the virtual circuit. Current is zero.";
+  document.getElementById("circuitCurrent").textContent="I = "+i.toFixed(2)+" A";
+  validateBuilderAction(v, r, switchClosed);
+}
+document.getElementById("battery").addEventListener("change",updateCircuit);
+document.getElementById("resistorSelect").addEventListener("change",updateCircuit);
+
+function requestBuilderHelp(){
+  const pack = currentLangPack();
+  const idx = Math.min(buildCurrentStep, pack.buildHelp.length - 1);
+  const text = buildCurrentStep >= pack.buildHelp.length ? pack.buildAllDone : pack.buildHelp[idx];
+  const card = document.getElementById("buildHelpCard");
+  document.getElementById("buildHelpLabel").textContent =
+    buildCurrentStep >= pack.buildHelp.length ? "BUILD COMPLETE · CAPTION" : ("STEP " + (idx + 1) + " HINT · CAPTION");
+  document.getElementById("buildHelpCaption").textContent = text;
+  card.hidden = false;
+  speakGuideOnce(text, "buildHelpAudioStatus");
+}
+
+function dismissBuilderHelp(){
+  stopGuideSpeechOnly();
+  document.getElementById("buildHelpCard").hidden = true;
+}
+
+// ============================================================================
+// LESSON NARRATION & ONE-SHOT GUIDE SPEECH CONTROLLER
+// ============================================================================
 const lessonScripts = {
   english: [
     "Welcome to Physics Booster Lab. Today we will understand Ohm's law by looking at what happens inside a simple circuit.",
@@ -364,6 +978,7 @@ function updateLessonAudioButtons(){
   const stopBtn = document.getElementById("lessonStop");
   const prevBtn = document.getElementById("lessonPrevious");
   const nextBtn = document.getElementById("lessonNext");
+  const toggleBtn = document.getElementById("lessonAudioToggleBtn");
   const total = currentLessonSegments().length;
   if(lessonVoiceState === "playing"){
     playBtn.textContent = "▶ Playing...";
@@ -386,6 +1001,11 @@ function updateLessonAudioButtons(){
   }
   prevBtn.disabled = lessonIndex <= 0;
   nextBtn.disabled = lessonIndex >= total - 1;
+  if(toggleBtn){
+    if(userPrefs.audioPref === "enabled") toggleBtn.textContent = "🔊 Voice: Allowed (tap to mute)";
+    else if(userPrefs.audioPref === "muted") toggleBtn.textContent = "🔇 Voice: Muted (tap to allow)";
+    else toggleBtn.textContent = "🔊 Voice: Ask permission";
+  }
 }
 
 function cancelCurrentUtterance(){
@@ -405,7 +1025,13 @@ function cancelCurrentUtterance(){
   }
 }
 
-  function stopLessonVoice(resetCaption){
+function stopGuideSpeechOnly(){
+  if(lessonVoiceState === "stopped"){
+    cancelCurrentUtterance();
+  }
+}
+
+function stopLessonVoice(resetCaption){
   cancelCurrentUtterance();
   lessonVoiceState = "stopped";
   resetSpeechProgress();
@@ -430,6 +1056,67 @@ function selectBestVoice(targetLang){
 
 if("speechSynthesis" in window && "onvoiceschanged" in window.speechSynthesis){
   window.speechSynthesis.addEventListener("voiceschanged", () => {});
+}
+
+// One-shot narration for Experiment It / Build It / Tour hints.
+// Speaks only the current step once, then stops automatically while keeping the caption visible.
+function speakGuideOnce(text, statusElementId){
+  const statusEl = statusElementId ? document.getElementById(statusElementId) : null;
+  if(userPrefs.audioPref === "muted"){
+    if(statusEl) statusEl.textContent = "Voice narration is muted in your settings. Read the step hint above or enable audio in ⚙ Guide & Language.";
+    return;
+  }
+  if(userPrefs.audioPref === "ask"){
+    if(statusEl) statusEl.textContent = "Audio permission enabled for your requested hint.";
+    userPrefs.audioPref = "enabled";
+    saveUserPrefs();
+    syncPrefsToUI();
+  }
+  if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+    if(statusEl) statusEl.textContent = "Voice is not supported in this browser. The written hint remains visible above.";
+    return;
+  }
+  if(lessonVoiceState !== "stopped"){
+    stopLessonVoice(false);
+  } else {
+    cancelCurrentUtterance();
+  }
+  const myToken = utteranceToken;
+  if(statusEl) statusEl.textContent = "Narrating this step once...";
+  speakTimerId = setTimeout(() => {
+    speakTimerId = null;
+    if(myToken !== utteranceToken) return;
+    const utterance = new SpeechSynthesisUtterance(String(text || ""));
+    currentUtterance = utterance;
+    const language = getLessonLanguage();
+    const targetLang = language === "hindi" ? "hi-IN" : "en-IN";
+    utterance.lang = targetLang;
+    const matchedVoice = selectBestVoice(targetLang) || selectBestVoice("en-IN");
+    if(matchedVoice) utterance.voice = matchedVoice;
+    utterance.rate = 0.88;
+    utterance.pitch = 1;
+    utterance.onend = () => {
+      if(myToken !== utteranceToken) return;
+      currentUtterance = null;
+      if(statusEl) statusEl.textContent = "Step narration finished. Caption remains visible above.";
+    };
+    utterance.onerror = (event) => {
+      if(myToken !== utteranceToken) return;
+      currentUtterance = null;
+      const code = event && event.error ? String(event.error).toLowerCase() : "";
+      if(code === "canceled" || code === "interrupted"){
+        if(statusEl) statusEl.textContent = "Voice stopped. Caption remains visible above.";
+        return;
+      }
+      if(statusEl) statusEl.textContent = "Could not play audio. The written step hint remains visible above.";
+    };
+    try {
+      if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+      window.speechSynthesis.speak(utterance);
+    } catch(e) {
+      if(statusEl) statusEl.textContent = "Browser blocked audio. Read the step caption above.";
+    }
+  }, 60);
 }
 
 // Snap character offset back to the start of the active word so slicing never cuts a word in half.
@@ -497,7 +1184,6 @@ function speakLessonSegment(){
     currentSpeechCharIndex = startAt;
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     currentUtterance = utterance;
-    // Best-effort word tracking. When Android voices omit onboundary, subPhraseIndex still preserves clause progress.
     utterance.onboundary = (event) => {
       if(myToken !== utteranceToken || lessonVoiceState !== "playing") return;
       if(event && typeof event.charIndex === "number"){
@@ -559,19 +1245,63 @@ function speakLessonSegment(){
   }, 60);
 }
 
-function startLessonVoice(){
-  const segments = currentLessonSegments();
-  if(lessonIndex >= segments.length - 1 && lessonVoiceState === "stopped" &&
-     document.getElementById("lessonAudioStatus").textContent.startsWith("Lesson complete")){
-    lessonIndex = 0;
+function requestAudioPermissionOrRun(actionFn){
+  if(userPrefs.audioPref === "muted"){
+    updateLessonAudioStatus("Voice narration is disabled (muted). Tap '🔇 Voice: Muted' above or use ⚙ Guide & Language to allow audio.");
+    return;
   }
-  resetSpeechProgress();
-  speakLessonSegment();
+  if(userPrefs.audioPref === "ask"){
+    pendingAudioCallback = actionFn;
+    document.getElementById("audioPermissionBox").hidden = false;
+    updateLessonAudioStatus("Please confirm whether you want to allow voice narration above.");
+    return;
+  }
+  actionFn();
+}
+
+function handleAudioPermission(allowed){
+  document.getElementById("audioPermissionBox").hidden = true;
+  userPrefs.audioPref = allowed ? "enabled" : "muted";
+  saveUserPrefs();
+  syncPrefsToUI();
+  const cb = pendingAudioCallback;
+  pendingAudioCallback = null;
+  if(allowed && typeof cb === "function"){
+    cb();
+  } else if(!allowed){
+    stopLessonVoice(false);
+    updateLessonAudioStatus("Audio disabled. You can read all captions and explanations at your own pace.");
+  }
+}
+
+function toggleAudioMuteFromLesson(){
+  if(userPrefs.audioPref === "enabled"){
+    userPrefs.audioPref = "muted";
+    stopLessonVoice(false);
+    updateLessonAudioStatus("Voice narration muted. Captions remain active.");
+  } else {
+    userPrefs.audioPref = "enabled";
+    document.getElementById("audioPermissionBox").hidden = true;
+    updateLessonAudioStatus("Voice narration allowed. Tap Play lesson to listen.");
+  }
+  saveUserPrefs();
+  syncPrefsToUI();
+}
+
+function startLessonVoice(){
+  requestAudioPermissionOrRun(() => {
+    const segments = currentLessonSegments();
+    if(lessonIndex >= segments.length - 1 && lessonVoiceState === "stopped" &&
+       document.getElementById("lessonAudioStatus").textContent.startsWith("Lesson complete")){
+      lessonIndex = 0;
+    }
+    resetSpeechProgress();
+    speakLessonSegment();
+  });
 }
 
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
-  // Save the latest character boundary (if reported by onboundary) alongside subPhraseIndex, then cancel cleanly.
   resumeCharIndex = currentSpeechCharIndex;
   cancelCurrentUtterance();
   lessonVoiceState = "paused";
@@ -587,7 +1317,9 @@ function pauseLessonVoice(){
 
 function resumeLessonVoice(){
   if(lessonVoiceState !== "paused") return;
-  speakLessonSegment();
+  requestAudioPermissionOrRun(() => {
+    speakLessonSegment();
+  });
 }
 
 function navigateLessonCaption(direction){
@@ -600,7 +1332,7 @@ function navigateLessonCaption(direction){
   resetSpeechProgress();
   lessonIndex = targetIndex;
   renderLessonCaption();
-  if(wasPlaying){
+  if(wasPlaying && userPrefs.audioPref === "enabled"){
     speakLessonSegment();
   } else if(wasPaused){
     lessonVoiceState = "paused";
@@ -626,20 +1358,46 @@ document.getElementById("lessonPause").addEventListener("click",()=>{
 document.getElementById("lessonStop").addEventListener("click",()=>stopLessonVoice(false));
 document.getElementById("lessonPrevious").addEventListener("click",()=>navigateLessonCaption(-1));
 document.getElementById("lessonNext").addEventListener("click",()=>navigateLessonCaption(1));
-document.getElementById("schoolMedium").addEventListener("change", updateLanguageHint);
-document.getElementById("preferredLanguage").addEventListener("change",()=>{
-  stopLessonVoice(false);
-  lessonIndex = 0;
-  renderLessonCaption();
-  updateLessonAudioButtons();
-  updateLanguageHint();
-});
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden && lessonVoiceState === "playing") pauseLessonVoice();
-});
-window.addEventListener("pagehide",()=>{
-  if(lessonVoiceState !== "stopped") stopLessonVoice(false);
-});
+
+// ============================================================================
+// LANGUAGE, ONBOARDING & SETTINGS SYNCHRONIZATION
+// ============================================================================
+let homeTourDismissed = false;
+
+function toggleSettingsPanel(forceState){
+  const panel = document.getElementById("settingsPanel");
+  panel.hidden = typeof forceState === "boolean" ? !forceState : !panel.hidden;
+}
+
+function setOnboardingChoice(choice){
+  userPrefs.onboarded = true;
+  userPrefs.guideMode = choice; // "guided" | "self" | "off"
+  if(choice === "off" || choice === "self"){
+    stopGuideSpeechOnly();
+  }
+  saveUserPrefs();
+  syncPrefsToUI();
+}
+
+function resetOnboardingPrompt(){
+  userPrefs.onboarded = false;
+  homeTourDismissed = false;
+  saveUserPrefs();
+  syncPrefsToUI();
+  toggleSettingsPanel(false);
+}
+
+function speakHomeTour(){
+  const pack = currentLangPack();
+  speakGuideOnce(pack.homeTour, null);
+}
+
+function dismissHomeTour(){
+  stopGuideSpeechOnly();
+  homeTourDismissed = true;
+  document.getElementById("homeTourBanner").hidden = true;
+}
+
 function updateLanguageHint(){
   const school = document.getElementById("schoolMedium").value;
   const pref = getLessonLanguage();
@@ -648,10 +1406,111 @@ function updateLanguageHint(){
     (school === "english" ? "English-medium school" : "Hindi-medium school") +
     " · " + labels[pref] + " explanation selected. Exam answers should follow your school's required medium.";
 }
-renderLessonCaption();
-updateLessonAudioButtons();
-updateLanguageHint();
-showOnly("home");updateExperiment();updateCircuit();
+
+function syncPrefsToUI(){
+  // Sync dropdowns in both Settings Panel and Learn Lesson without altering schoolMedium silently
+  document.getElementById("schoolMedium").value = userPrefs.schoolMedium;
+  document.getElementById("globalSchoolMedium").value = userPrefs.schoolMedium;
+  document.getElementById("preferredLanguage").value = userPrefs.preferredLanguage;
+  document.getElementById("globalPreferredLanguage").value = userPrefs.preferredLanguage;
+  document.getElementById("guideModeSelect").value = userPrefs.guideMode;
+  document.getElementById("audioPrefSelect").value = userPrefs.audioPref;
+
+  // Localized texts
+  const pack = currentLangPack();
+  document.getElementById("onboardingQuestion").textContent = pack.onboardingQ;
+  document.getElementById("onboardingSubtext").textContent = pack.onboardingSub;
+  document.getElementById("btnChooseGuided").textContent = pack.btnGuided;
+  document.getElementById("btnChooseSelf").textContent = pack.btnSelf;
+  document.getElementById("btnChooseOff").textContent = pack.btnOff;
+  document.getElementById("homeTourText").textContent = pack.homeTour;
+  document.getElementById("lessonGuideHeader").textContent = pack.lessonGuideHeader;
+  document.getElementById("lessonGuideStepsText").textContent = pack.lessonGuideSteps;
+  document.getElementById("audioPermTitle").textContent = pack.audioPermTitle;
+  document.getElementById("audioPermDesc").textContent = pack.audioPermDesc;
+  document.getElementById("btnAllowAudio").textContent = pack.allowBtn;
+  document.getElementById("btnMuteAudio").textContent = pack.muteBtn;
+
+  // Show/hide onboarding prompt (never repeatedly ask users who already chose or disabled it)
+  document.getElementById("onboardingPrompt").hidden = userPrefs.onboarded;
+
+  // Show/hide lesson guide box if guide isn't permanently off
+  document.getElementById("lessonGuideBox").hidden = (userPrefs.guideMode === "off");
+
+  // Show/hide home tour banner if on home screen and "Guide me" is active
+  const isHomeVisible = !document.getElementById("home").hidden;
+  document.getElementById("homeTourBanner").hidden = !(isHomeVisible && userPrefs.onboarded && userPrefs.guideMode === "guided" && !homeTourDismissed);
+
+  // Summary bar text
+  const langNames = {english:"English",hinglish:"Hinglish",hindi:"Hindi"};
+  const modeNames = {guided:"Guide me",self:"Self-explore",off:"Off"};
+  const audioNames = {ask:"Ask first",enabled:"On",muted:"Muted"};
+  document.getElementById("globalStatusSummary").textContent =
+    "Guide: " + modeNames[userPrefs.guideMode] +
+    " · Audio: " + audioNames[userPrefs.audioPref] +
+    " · Explain: " + langNames[userPrefs.preferredLanguage] +
+    " · Medium: " + (userPrefs.schoolMedium === "english" ? "English" : "Hindi");
+
+  updateLanguageHint();
+  renderLessonCaption();
+  updateLessonAudioButtons();
+  updateExperiment();
+  updateCircuit();
+}
+
+// Event listeners for Lesson and Global selectors
+document.getElementById("schoolMedium").addEventListener("change", (e)=>{
+  userPrefs.schoolMedium = e.target.value;
+  saveUserPrefs();
+  syncPrefsToUI();
+});
+document.getElementById("globalSchoolMedium").addEventListener("change", (e)=>{
+  userPrefs.schoolMedium = e.target.value;
+  saveUserPrefs();
+  syncPrefsToUI();
+});
+function handleExplanationLanguageChange(newLang){
+  stopLessonVoice(false);
+  stopGuideSpeechOnly();
+  userPrefs.preferredLanguage = newLang;
+  lessonIndex = 0;
+  saveUserPrefs();
+  syncPrefsToUI();
+  if(!document.getElementById("expHelpCard").hidden) requestExperimentHelp();
+  if(!document.getElementById("buildHelpCard").hidden) requestBuilderHelp();
+}
+document.getElementById("preferredLanguage").addEventListener("change", (e)=>handleExplanationLanguageChange(e.target.value));
+document.getElementById("globalPreferredLanguage").addEventListener("change", (e)=>handleExplanationLanguageChange(e.target.value));
+
+document.getElementById("guideModeSelect").addEventListener("change", (e)=>{
+  userPrefs.guideMode = e.target.value;
+  userPrefs.onboarded = true;
+  if(userPrefs.guideMode === "off") stopGuideSpeechOnly();
+  saveUserPrefs();
+  syncPrefsToUI();
+});
+document.getElementById("audioPrefSelect").addEventListener("change", (e)=>{
+  userPrefs.audioPref = e.target.value;
+  if(userPrefs.audioPref === "muted"){
+    stopLessonVoice(false);
+    stopGuideSpeechOnly();
+  }
+  saveUserPrefs();
+  syncPrefsToUI();
+  });
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && lessonVoiceState === "playing") pauseLessonVoice();
+});
+window.addEventListener("pagehide",()=>{
+  if(lessonVoiceState !== "stopped") stopLessonVoice(false);
+  stopGuideSpeechOnly();
+});
+
+// Initialize app state
+loadUserPrefs();
+showOnly("home");
+syncPrefsToUI();
 </script>
 </body>
 </html>
