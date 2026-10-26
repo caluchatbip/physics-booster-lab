@@ -149,7 +149,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
     </div>
   </section>
 
-<!-- Contextual Home Tour Tip (shown when "Guide me" is active) -->
+  <!-- Contextual Home Tour Tip (shown when "Guide me" is active) -->
   <div id="homeTourBanner" class="caption-card" style="margin-bottom:14px" hidden>
     <div class="caption-label" id="homeTourLabel">SMART GUIDE · TOUR</div>
     <div class="caption-line" id="homeTourText">Start with 01 Learn Lesson to understand Ohm's Law, then practise in 03 Experiment It and 04 Build It before taking 02 Timed Test.</div>
@@ -249,7 +249,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
         <div class="lesson-step"><strong>2. What does resistance do?</strong><p>Collisions and interactions inside a material oppose the drift of charge. For an ohmic conductor at constant physical conditions, more voltage produces proportionally more current; more resistance at the same voltage means less current.</p></div>
         <div class="lesson-step"><strong>3. Connect the observation to the rule</strong><p>Ohm's law describes the relationship: V = IR. To find current, rearrange it to I = V/R. For example, 6 V across 3 Ω gives I = 6/3 = 2 A.</p></div>
       </div>
-          </div>
+    </div>
     <div class="formula">V = IR</div>
     <div class="grid">
       <div><strong>V</strong><p>Potential difference, in volts (V).</p></div>
@@ -396,7 +396,7 @@ footer{text-align:center;padding:25px 15px;border-top:1px solid var(--line);colo
       <text x="232" y="18" fill="#67e8f9" font-size="9" text-anchor="middle">R2</text>
       <text x="160" y="152" fill="#96a8c2" font-size="10" text-anchor="middle">VIRTUAL SCHEMATIC · SIMULATION ONLY</text>
  </svg>
-    <button id="switchBtn" class="primary" style="width:100%" onclick="toggleSwitch()">Close switch</button>
+     <button id="switchBtn" class="primary" style="width:100%" onclick="toggleSwitch()">Close switch</button>
     <div class="readout" style="margin-top:14px"><div class="tag">VIRTUAL CIRCUIT STATUS</div><h3 id="circuitStatus">Circuit open</h3><p id="circuitResult">The open switch interrupts the circuit. Current is zero.</p><div class="formula" id="circuitCurrent">I = 0 A</div></div>
     <div class="actions"><button onclick="toggleSwitch()">Toggle switch</button><button onclick="resetBuilderTask()">Reset build task</button><button onclick="openExperiment()">Explore variable values</button><button onclick="goHome()">Back to home</button></div>
   </section>
@@ -525,8 +525,7 @@ const guideTexts = {
     buildHeading: "Step-by-Step Virtual Circuit Guide",
     buildSteps: [
       "Step 1 (Battery T1–T2 par): Switch S1–S2 ko OPEN rakhein aur terminals T1(+) aur T2(-) ke beech '12 V battery' select karein.",
-      "Step 2 (Resistor R1–R2 par): Switch S1–S2 ko OPEN rakhte hue 
-terminals R1 aur R2 ke beech '4 Ω resistor' select karein.",
+      "Step 2 (Resistor R1–R2 par): Switch S1–S2 ko OPEN rakhte hue terminals R1 aur R2 ke beech '4 Ω resistor' select karein.",
       "Step 3 (Switch S1–S2 Close karein): 'Close switch' dabayein taaki S1 aur S2 jud jayein aur virtual current I = 12 V / 4 Ω = 3.00 A mile.",
       "Step 4 (Switch S1–S2 Open karein): Circuit path todne ke liye 'Open switch' dabayein aur confirm karein ki current 0 A ho gaya."
     ],
@@ -599,7 +598,7 @@ function showOnly(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function goHome(){stopTimer();showOnly("home");}
-function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
+  function makeChapterButtons(containerId,clickFn){const box=document.getElementById(containerId);box.innerHTML="";chapters.forEach(c=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span>Chapter '+c.id+': '+c.name+'</span><span>→</span>';b.addEventListener("click",()=>clickFn(c));box.appendChild(b);});}
 let selectedChapter=chapters[2], selectedTopic="Ohm's Law";
 function startLearn(){makeChapterButtons("chapterLearnList",chooseLearnChapter);showOnly("learnChapters");}
 function chooseLearnChapter(ch){selectedChapter=ch;document.getElementById("learnTopicHeading").textContent="Chapter "+ch.id+": "+ch.name+" · Choose a topic";document.getElementById("topicSearch").value="";renderTopicList("");showOnly("learnTopics");}
@@ -670,7 +669,7 @@ function renderExperimentSteps(){
     list.appendChild(li);
   });
 
-  // Highlight active component on the Experiment SVG schematic
+ // Highlight active component on the Experiment SVG schematic
   const batSvg = document.getElementById("expBatterySvg");
   const resSvg = document.getElementById("expResistorSvg");
   if(batSvg && resSvg){
@@ -786,7 +785,7 @@ function resetBuilderTask(){
   document.getElementById("resistorSelect").value = "4";
   document.getElementById("buildHelpCard").hidden = true;
   updateCircuit();
-  }
+}
 
 function renderBuilderSteps(){
   const pack = currentLangPack();
@@ -801,7 +800,7 @@ function renderBuilderSteps(){
     const badgeText = isDone ? "✓ Done" : (isActive ? "Current step" : "Step " + (idx + 1));
     li.innerHTML = '<span>' + stepText + '</span><span class="step-badge">' + badgeText + '</span>';
     list.appendChild(li);
-  });
+    });
 
   // Visual highlights on the schematic for the active step
   const batLines = document.getElementById("builderBatteryLines");
@@ -866,7 +865,7 @@ function validateBuilderAction(v, r, isClosed){
     } else {
       msgEl.innerHTML = '<strong>Current goal (Step 4):</strong> Tap <strong>Open switch</strong> to disconnect terminal <strong>S1 from S2</strong> and bring the simulated current back to 0 A.';
     }
-      } else {
+  } else {
     msgEl.innerHTML = '<span class="good">✓ ' + pack.buildAllDone + '</span> You can now freely test any battery and resistor combination in this virtual simulator.';
   }
   renderBuilderSteps();
@@ -1013,7 +1012,7 @@ function cancelCurrentUtterance(){
   if(speakTimerId !== null){
     clearTimeout(speakTimerId);
     speakTimerId = null;
-  }
+    }
   if(currentUtterance){
     currentUtterance.onboundary = null;
     currentUtterance.onend = null;
@@ -1298,7 +1297,7 @@ function startLessonVoice(){
     resetSpeechProgress();
     speakLessonSegment();
   });
-}
+  }
 
 function pauseLessonVoice(){
   if(lessonVoiceState !== "playing") return;
@@ -1497,7 +1496,7 @@ document.getElementById("audioPrefSelect").addEventListener("change", (e)=>{
   }
   saveUserPrefs();
   syncPrefsToUI();
-  });
+});
 
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden && lessonVoiceState === "playing") pauseLessonVoice();
